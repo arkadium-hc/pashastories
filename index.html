@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Истории Пашиных друзей</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body { 
+            margin: 0; 
+            padding: 0; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+        }
+        #map { 
+            height: 100vh; 
+            width: 100%; 
+        }
+        /* Стили для круглых маркеров с номерами */
+        .numbered-marker {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .numbered-marker:hover {
+            transform: scale(1.15);
+        }
+        /* Стили для всплывающего окна */
+        .audio-popup { 
+            min-width: 220px; 
+            text-align: center; 
+        }
+        .audio-popup h3 { 
+            margin: 0 0 12px 0; 
+            font-size: 17px; 
+            color: #333; 
+            font-weight: 600;
+        }
+        .audio-popup audio { 
+            width: 100%; 
+            border-radius: 4px; 
+        }
+        .audio-popup .placeholder {
+            color: #888;
+            font-size: 14px;
+            font-style: italic;
+            padding: 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // 1. Инициализация карты (центр — Красногорская площадь, Сергиев Посад)
+        const map = L.map('map').setView([56.3125, 38.1285], 14);
+
+        // 2. Светлый слой карты OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        // 3. Цветовая палитра для маркеров (9 ярких, но приятных цветов)
+        const colors = [
+            '#E63946', '#F4A261', '#2A9D8F', '#457B9D', '#6A4C93',
+            '#E76F51', '#06A77D', '#D62828', '#4361EE'
+        ];
+
+        // 4. Твои данные — точки из таблицы
+        const stories = [
+            { number: 1, title: "Начало", lat: 56.311186, lng: 38.132690, audio: "https://www.image2url.com/r2/default/audio/1786626303413-14991fed-6335-4329-8960-c4cd164c6554.m4a" },
+            { number: 2, title: "Лесное озеро", lat: 56.302385, lng: 38.195200, audio: "https://www.image2url.com/r2/default/audio/1786626355419-d8a94756-b1f2-4ac1-9abd-de4e86655e46.m4a" },
+            { number: 3, title: "Бассейн Дельфин", lat: 56.303451, lng: 38.178942, audio: null },
+            { number: 4, title: "Автовокзал", lat: 56.303853, lng: 38.136041, audio: "https://www.image2url.com/r2/default/audio/1786625801384-7f202c22-a4ee-41bf-8548-b05234a38407.m4a" },
+            { number: 5, title: "ЖД полиция", lat: 56.305188, lng: 38.138321, audio: null },
+            { number: 6, title: "Келарка", lat: 56.303419, lng: 38.125795, audio: null },
+            { number: 7, title: "Трикотажка", lat: 56.311902, lng: 38.137340, audio: null },
+            { number: 8, title: "Бира", lat: 56.311501, lng: 38.135550, audio: null },
+            { number: 9, title: "СВОИ Фест", lat: 56.314181, lng: 38.137641, audio: null }
+        ];
+
+        // 5. Добавляем маркеры на карту
+        stories.forEach(story => {
+            // Выбираем цвет по номеру точки
+            const color = colors[(story.number - 1) % colors.length];
+            
+            // Создаём кастомный маркер — круг с номером внутри
+            const markerIcon = L.divIcon({
+                className: '',
+                html: `<div class="numbered-marker" style="background-color: ${color};">${story.number}</div>`,
+                iconSize: [36, 36],
+                iconAnchor: [18, 18]
+            });
+
+            const marker = L.marker([story.lat, story.lng], { icon: markerIcon }).addTo(map);
+            
+            // Формируем содержимое всплывающего окна
+            let popupContent = `<div class="audio-popup"><h3>${story.title}</h3>`;
+            
+            if (story.audio) {
+                // Если есть ссылка на аудио — показываем плеер
+                popupContent += `<audio controls preload="none">
+                    <source src="${story.audio}">
+                    Ваш браузер не поддерживает аудио.
+                </audio>`;
+            } else {
+                // Если аудио пока нет — показываем заглушку
+                popupContent += `<div class="placeholder">Аудио скоро появится 🎧</div>`;
+            }
+            
+            popupContent += `</div>`;
+            marker.bindPopup(popupContent);
+        });
+    </script>
+</body>
+</html>
