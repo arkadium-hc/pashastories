@@ -10,54 +10,52 @@
             margin: 0; 
             padding: 0; 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: #f5f1eb;
         }
         #map { 
             height: 100vh; 
             width: 100%; 
         }
 
-        /* Маркеры точек историй */
-        .numbered-marker {
-            width: 36px;
-            height: 36px;
+        /* Маркеры точек - простые круглые иконки */
+        .story-marker {
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 16px;
-            border: 3px solid white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            background: #C87941;
+            border: 3px solid #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
             cursor: pointer;
             transition: transform 0.2s;
         }
-        .numbered-marker:hover {
+        .story-marker:hover {
             transform: scale(1.15);
         }
 
         /* Попап аудио */
         .audio-popup { 
-            min-width: 240px; 
-            max-width: 280px;
+            min-width: 220px; 
+            max-width: 260px;
             text-align: center; 
         }
         .audio-popup h3 { 
-            margin: 0 0 12px 0; 
-            font-size: 17px; 
-            color: #333; 
+            margin: 0 0 10px 0; 
+            font-size: 16px; 
+            color: #6B5445; 
             font-weight: 600;
         }
         .audio-popup audio { 
             width: 100%; 
+            max-width: 200px;
+            height: 32px;
             border-radius: 4px; 
             margin-bottom: 8px;
         }
         .audio-popup .placeholder {
-            color: #888;
-            font-size: 14px;
+            color: #8B6F47;
+            font-size: 13px;
             font-style: italic;
-            padding: 8px 0;
+            padding: 6px 0;
             margin-bottom: 8px;
         }
 
@@ -67,18 +65,18 @@
             align-items: center;
             gap: 6px;
             background: none;
-            border: 1px solid #e0e0e0;
+            border: 1px solid #E6C9A8;
             border-radius: 20px;
-            padding: 6px 14px;
+            padding: 5px 12px;
             font-size: 12px;
-            color: #555;
+            color: #8B6F47;
             cursor: pointer;
             transition: all 0.2s;
             margin-top: 4px;
         }
         .desc-toggle:hover {
-            background: #f5f5f5;
-            border-color: #ccc;
+            background: #f5f1eb;
+            border-color: #D4A574;
         }
         .desc-toggle .arrow {
             display: inline-block;
@@ -89,9 +87,9 @@
             transform: rotate(180deg);
         }
         .desc-toggle.open {
-            background: #f0f4ff;
-            border-color: #4361EE;
-            color: #4361EE;
+            background: #E6C9A8;
+            border-color: #C87941;
+            color: #6B5445;
         }
 
         /* Раскрывающееся описание */
@@ -102,18 +100,18 @@
             text-align: left;
             font-size: 13px;
             line-height: 1.5;
-            color: #555;
+            color: #6B5445;
             margin-top: 0;
             padding: 0 4px;
             border-left: 3px solid transparent;
         }
         .desc-content.open {
             max-height: 400px;
-            margin-top: 12px;
+            margin-top: 10px;
             padding: 10px 12px;
-            background: #fafafa;
+            background: #faf7f2;
             border-radius: 6px;
-            border-left: 3px solid #4361EE;
+            border-left: 3px solid #C87941;
         }
 
         /* Кнопка "Нарисовать маршрут" */
@@ -128,17 +126,17 @@
             font-size: 15px;
             font-weight: 600;
             cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
             transition: all 0.2s;
-            background: #4361EE;
+            background: #C87941;
             color: white;
         }
         .draw-toggle:hover {
-            background: #3651d4;
+            background: #B8604A;
             transform: translateY(-1px);
         }
         .draw-toggle.active {
-            background: #2A9D8F;
+            background: #8B6F47;
         }
 
         /* Панель рисования */
@@ -150,7 +148,7 @@
             background: white;
             padding: 16px;
             border-radius: 10px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
             width: 220px;
             display: none;
             animation: slideDown 0.2s ease;
@@ -165,12 +163,12 @@
         .draw-panel .panel-title {
             font-size: 14px;
             font-weight: 600;
-            color: #333;
+            color: #6B5445;
             margin-bottom: 4px;
         }
         .draw-panel .panel-hint {
             font-size: 12px;
-            color: #888;
+            color: #8B6F47;
             margin-bottom: 14px;
             line-height: 1.4;
         }
@@ -191,11 +189,11 @@
             margin-bottom: 0;
         }
         .btn-undo {
-            background: #f5f5f5;
-            color: #333;
+            background: #f5f1eb;
+            color: #6B5445;
         }
         .btn-undo:hover {
-            background: #e8e8e8;
+            background: #E6C9A8;
         }
         .btn-undo:disabled {
             opacity: 0.4;
@@ -203,7 +201,7 @@
         }
         .btn-delete {
             background: #fdecea;
-            color: #c0392b;
+            color: #B8604A;
         }
         .btn-delete:hover {
             background: #f8d7da;
@@ -214,11 +212,11 @@
         }
         .draw-panel .point-counter {
             font-size: 12px;
-            color: #666;
+            color: #8B6F47;
             text-align: center;
             margin-top: 10px;
             padding-top: 10px;
-            border-top: 1px solid #eee;
+            border-top: 1px solid #E6C9A8;
         }
 
         /* Курсор-плюсик в режиме рисования */
@@ -230,6 +228,11 @@
         }
         .map-drawing .leaflet-marker-pane {
             pointer-events: none;
+        }
+
+        /* Стили для линии маршрута */
+        .route-line {
+            stroke: #C87941;
         }
     </style>
 </head>
@@ -251,16 +254,12 @@
         // === КАРТА ===
         const map = L.map('map').setView([56.3125, 38.1285], 13);
 
+        // Светлая карта с теплыми оттенками
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap'
         }).addTo(map);
 
         // === ДАННЫЕ ТОЧЕК ===
-        const colors = [
-            '#E63946', '#F4A261', '#2A9D8F', '#457B9D', '#6A4C93',
-            '#E76F51', '#06A77D', '#D62828', '#4361EE', '#8338EC', '#FF006E'
-        ];
-
         const stories = [
             { number: 1, title: "Нептун", lat: 56.302113, lng: 38.195208, audio: "./audio/ira-neptun.m4a", description: "Рассказчик: Ирина Тарабрина" },
             { number: 2, title: "Лесное озеро", lat: 56.304203, lng: 38.196720, audio: "./audio/ira-lesnoe.m4a", description: "Рассказчик: Ирина Тарабрина" },
@@ -272,19 +271,20 @@
             { number: 8, title: "Бира", lat: 56.311501, lng: 38.135550, audio: null, description: null },
             { number: 9, title: "СВОИ Фест", lat: 56.314181, lng: 38.137641, audio: null, description: null },
             { number: 10, title: "Станция 76 км", lat: 56.344341, lng: 38.202045, audio: null, description: "Рассказчик: Владимир Столяров" },
-            { number: 11, title: "Хани", lat: 56.305032, lng: 38.133989, audio: null, description: null }
+            { number: 11, title: "Хани", lat: 56.305032, lng: 38.133989, audio: null, description: null },
+            { number: 12, title: "Гастробар на Ясной", lat: 56.303918, lng: 38.183152, audio: null, description: "Рассказчик: Полина Пахомова" },
+            { number: 13, title: "Гнездо поганок", lat: 56.306013, lng: 38.127606, audio: null, description: "Рассказчик: Полина Пахомова" }
         ];
 
         const markers = [];
 
         stories.forEach(story => {
-            const color = colors[(story.number - 1) % colors.length];
-            
+            // Простая круглая иконка без номера
             const markerIcon = L.divIcon({
                 className: '',
-                html: `<div class="numbered-marker" style="background-color: ${color};">${story.number}</div>`,
-                iconSize: [36, 36],
-                iconAnchor: [18, 18]
+                html: `<div class="story-marker"></div>`,
+                iconSize: [28, 28],
+                iconAnchor: [14, 14]
             });
 
             const marker = L.marker([story.lat, story.lng], { icon: markerIcon }).addTo(map);
@@ -388,11 +388,12 @@
             const latlng = e.latlng;
             routePoints.push(latlng);
 
+            // Точка маршрута в теплых тонах
             const dot = L.circleMarker(latlng, {
-                radius: 6,
+                radius: 5,
                 color: '#fff',
                 weight: 2,
-                fillColor: '#E63946',
+                fillColor: '#C87941',
                 fillOpacity: 1
             }).addTo(map);
             routeDots.push(dot);
@@ -402,9 +403,9 @@
             }
             if (routePoints.length >= 2) {
                 routeLine = L.polyline(routePoints, {
-                    color: '#E63946',
-                    weight: 4,
-                    opacity: 0.85,
+                    color: '#C87941',
+                    weight: 3,
+                    opacity: 0.8,
                     lineCap: 'round',
                     lineJoin: 'round'
                 }).addTo(map);
@@ -426,9 +427,9 @@
             }
             if (routePoints.length >= 2) {
                 routeLine = L.polyline(routePoints, {
-                    color: '#E63946',
-                    weight: 4,
-                    opacity: 0.85,
+                    color: '#C87941',
+                    weight: 3,
+                    opacity: 0.8,
                     lineCap: 'round',
                     lineJoin: 'round'
                 }).addTo(map);
