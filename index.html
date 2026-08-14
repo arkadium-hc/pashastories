@@ -15,7 +15,6 @@
             height: 100vh; 
             width: 100%; 
         }
-        /* Стили для круглых маркеров с номерами */
         .numbered-marker {
             width: 36px;
             height: 36px;
@@ -34,7 +33,6 @@
         .numbered-marker:hover {
             transform: scale(1.15);
         }
-        /* Стили для всплывающего окна */
         .audio-popup { 
             min-width: 220px; 
             text-align: center; 
@@ -55,33 +53,84 @@
             font-style: italic;
             padding: 8px 0;
         }
+        .control-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .control-panel button {
+            display: block;
+            width: 100%;
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .control-panel button:last-child {
+            margin-bottom: 0;
+        }
+        .btn-draw {
+            background: #4361EE;
+            color: white;
+        }
+        .btn-draw:hover {
+            background: #3651d4;
+        }
+        .btn-draw.active {
+            background: #E63946;
+        }
+        .btn-clear {
+            background: #f0f0f0;
+            color: #333;
+        }
+        .btn-clear:hover {
+            background: #e0e0e0;
+        }
+        .control-panel .info {
+            font-size: 12px;
+            color: #666;
+            margin-top: 8px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
     <div id="map"></div>
+    
+    <div class="control-panel">
+        <button class="btn-draw" id="drawBtn">🎨 Рисовать маршрут</button>
+        <button class="btn-clear" id="clearBtn">🗑️ Очистить маршрут</button>
+        <div class="info" id="drawInfo">Кликай на точки, чтобы соединить их</div>
+    </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // 1. Инициализация карты (центр — Красногорская площадь, Сергиев Посад)
         const map = L.map('map').setView([56.3125, 38.1285], 14);
 
-        // 2. Светлый слой карты OpenStreetMap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap'
         }).addTo(map);
 
-        // 3. Цветовая палитра для маркеров (9 ярких, но приятных цветов)
         const colors = [
             '#E63946', '#F4A261', '#2A9D8F', '#457B9D', '#6A4C93',
             '#E76F51', '#06A77D', '#D62828', '#4361EE'
         ];
 
-        // 4. Твои данные — точки из таблицы
+        // ⚠️ ВАЖНО: теперь ссылки относительные — файлы лежат в папке audio
         const stories = [
-            { number: 1, title: "Начало", lat: 56.311186, lng: 38.132690, audio: "https://www.image2url.com/r2/default/audio/1786626303413-14991fed-6335-4329-8960-c4cd164c6554.m4a" },
-            { number: 2, title: "Лесное озеро", lat: 56.302385, lng: 38.195200, audio: "https://www.image2url.com/r2/default/audio/1786626355419-d8a94756-b1f2-4ac1-9abd-de4e86655e46.m4a" },
+            { number: 1, title: "Начало", lat: 56.311186, lng: 38.132690, audio: "./audio/ira-lavra.m4a" },
+            { number: 2, title: "Лесное озеро", lat: 56.302385, lng: 38.195200, audio: "./audio/ira-lesnoe.m4a" },
             { number: 3, title: "Бассейн Дельфин", lat: 56.303451, lng: 38.178942, audio: null },
-            { number: 4, title: "Автовокзал", lat: 56.303853, lng: 38.136041, audio: "https://www.image2url.com/r2/default/audio/1786625801384-7f202c22-a4ee-41bf-8548-b05234a38407.m4a" },
+            { number: 4, title: "Автовокзал", lat: 56.303853, lng: 38.136041, audio: "./audio/polotentse.m4a" },
             { number: 5, title: "ЖД полиция", lat: 56.305188, lng: 38.138321, audio: null },
             { number: 6, title: "Келарка", lat: 56.303419, lng: 38.125795, audio: null },
             { number: 7, title: "Трикотажка", lat: 56.311902, lng: 38.137340, audio: null },
@@ -89,12 +138,14 @@
             { number: 9, title: "СВОИ Фест", lat: 56.314181, lng: 38.137641, audio: null }
         ];
 
-        // 5. Добавляем маркеры на карту
+        let drawMode = false;
+        let routePoints = [];
+        let routeLine = null;
+        const markers = [];
+
         stories.forEach(story => {
-            // Выбираем цвет по номеру точки
             const color = colors[(story.number - 1) % colors.length];
             
-            // Создаём кастомный маркер — круг с номером внутри
             const markerIcon = L.divIcon({
                 className: '',
                 html: `<div class="numbered-marker" style="background-color: ${color};">${story.number}</div>`,
@@ -104,23 +155,82 @@
 
             const marker = L.marker([story.lat, story.lng], { icon: markerIcon }).addTo(map);
             
-            // Формируем содержимое всплывающего окна
             let popupContent = `<div class="audio-popup"><h3>${story.title}</h3>`;
             
             if (story.audio) {
-                // Если есть ссылка на аудио — показываем плеер
                 popupContent += `<audio controls preload="none">
-                    <source src="${story.audio}">
+                    <source src="${story.audio}" type="audio/mp4">
                     Ваш браузер не поддерживает аудио.
                 </audio>`;
             } else {
-                // Если аудио пока нет — показываем заглушку
                 popupContent += `<div class="placeholder">Аудио скоро появится 🎧</div>`;
             }
             
             popupContent += `</div>`;
             marker.bindPopup(popupContent);
+            
+            markers.push({
+                marker: marker,
+                data: story,
+                coords: [story.lat, story.lng]
+            });
+            
+            marker.on('click', function() {
+                if (drawMode) {
+                    addToRoute(story);
+                }
+            });
         });
+
+        function addToRoute(story) {
+            routePoints.push([story.lat, story.lng]);
+            
+            if (routeLine) {
+                map.removeLayer(routeLine);
+            }
+            
+            if (routePoints.length > 1) {
+                routeLine = L.polyline(routePoints, {
+                    color: '#E63946',
+                    weight: 5,
+                    opacity: 0.8,
+                    lineCap: 'round'
+                }).addTo(map);
+            }
+            
+            document.getElementById('drawInfo').textContent = 
+                `Точек в маршруте: ${routePoints.length}`;
+        }
+
+        document.getElementById('drawBtn').addEventListener('click', function() {
+            drawMode = !drawMode;
+            this.classList.toggle('active');
+            
+            if (drawMode) {
+                this.textContent = '✋ Завершить рисование';
+                document.getElementById('drawInfo').textContent = 
+                    'Кликай на точки, чтобы соединить их';
+            } else {
+                this.textContent = '🎨 Рисовать маршрут';
+                document.getElementById('drawInfo').textContent = 
+                    routePoints.length > 0 ? 
+                    `Маршрут сохранён (${routePoints.length} точек)` : 
+                    'Кликай на точки, чтобы соединить их';
+            }
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            routePoints = [];
+            if (routeLine) {
+                map.removeLayer(routeLine);
+                routeLine = null;
+            }
+            document.getElementById('drawInfo').textContent = 
+                'Кликай на точки, чтобы соединить их';
+        });
+
+        const group = new L.featureGroup(markers.map(m => m.marker));
+        map.fitBounds(group.getBounds(), { padding: [50, 50] });
     </script>
 </body>
 </html>
