@@ -256,23 +256,22 @@
         }).addTo(map);
 
         // === ДАННЫЕ ТОЧЕК ===
-        // 11 цветов для 11 точек
         const colors = [
             '#E63946', '#F4A261', '#2A9D8F', '#457B9D', '#6A4C93',
             '#E76F51', '#06A77D', '#D62828', '#4361EE', '#8338EC', '#FF006E'
         ];
 
         const stories = [
-            { number: 1, title: "Начало", lat: 56.311186, lng: 38.132690, audio: "./audio/ira-lavra.m4a", description: "Здесь всё началось — первая история нашего путешествия по городу." },
-            { number: 2, title: "Лесное озеро", lat: 56.302385, lng: 38.195200, audio: "./audio/ira-lesnoe.m4a", description: "Тихое место вдали от города, где можно услышать только птиц и шум ветра в деревьях." },
-            { number: 3, title: "Бассейн Дельфин", lat: 56.303451, lng: 38.178942, audio: null, description: null },
-            { number: 4, title: "Автовокзал", lat: 56.303853, lng: 38.136041, audio: "./audio/polotentse.m4a", description: "Место встреч и расставаний — здесь начинается и заканчивается множество историй." },
-            { number: 5, title: "ЖД полиция", lat: 56.305188, lng: 38.138321, audio: null, description: null },
-            { number: 6, title: "Келарка", lat: 56.303419, lng: 38.125795, audio: null, description: null },
+            { number: 1, title: "Нептун", lat: 56.302113, lng: 38.195208, audio: "./audio/ira-neptun.m4a", description: "Рассказчик: Ирина Тарабрина" },
+            { number: 2, title: "Лесное озеро", lat: 56.304203, lng: 38.196720, audio: "./audio/ira-lesnoe.m4a", description: "Рассказчик: Ирина Тарабрина" },
+            { number: 3, title: "Бассейн Дельфин", lat: 56.303451, lng: 38.178942, audio: null, description: "Рассказчик: Владислав Швец" },
+            { number: 4, title: "Автовокзал", lat: 56.303853, lng: 38.136041, audio: "./audio/polotentse.m4a", description: "Рассказчик: Ирина Тарабрина" },
+            { number: 5, title: "ЖД полиция", lat: 56.305188, lng: 38.138321, audio: null, description: "Рассказчик: Анастасия Пичкасова" },
+            { number: 6, title: "Келарка", lat: 56.303419, lng: 38.125795, audio: null, description: "Рассказчик: Иссамчик" },
             { number: 7, title: "Трикотажка", lat: 56.311902, lng: 38.137340, audio: null, description: null },
             { number: 8, title: "Бира", lat: 56.311501, lng: 38.135550, audio: null, description: null },
             { number: 9, title: "СВОИ Фест", lat: 56.314181, lng: 38.137641, audio: null, description: null },
-            { number: 10, title: "Станция 76 км", lat: 56.344341, lng: 38.202045, audio: null, description: null },
+            { number: 10, title: "Станция 76 км", lat: 56.344341, lng: 38.202045, audio: null, description: "Рассказчик: Владимир Столяров" },
             { number: 11, title: "Хани", lat: 56.305032, lng: 38.133989, audio: null, description: null }
         ];
 
@@ -290,7 +289,6 @@
 
             const marker = L.marker([story.lat, story.lng], { icon: markerIcon }).addTo(map);
             
-            // Формируем содержимое попапа
             let popupContent = `<div class="audio-popup"><h3>${story.title}</h3>`;
             
             if (story.audio) {
@@ -302,7 +300,6 @@
                 popupContent += `<div class="placeholder">Аудио скоро появится 🎧</div>`;
             }
             
-            // Добавляем кнопку раскрытия описания, только если описание есть
             if (story.description) {
                 popupContent += `
                     <button class="desc-toggle" data-story="${story.number}">
@@ -319,22 +316,19 @@
             markers.push(marker);
         });
 
-        // Масштабируем карту по точкам
         const group = L.featureGroup(markers);
         map.fitBounds(group.getBounds(), { padding: [50, 50] });
 
         // === ОБРАБОТЧИК РАСКРЫТИЯ ОПИСАНИЯ ===
-        // Используем делегирование событий, т.к. попапы создаются динамически
         document.addEventListener('click', function(e) {
             const toggle = e.target.closest('.desc-toggle');
             if (toggle) {
-                e.stopPropagation(); // Чтобы клик не закрыл попап
+                e.stopPropagation();
                 const storyNum = toggle.getAttribute('data-story');
                 const content = document.querySelector(`[data-story-content="${storyNum}"]`);
                 toggle.classList.toggle('open');
                 content.classList.toggle('open');
                 
-                // Меняем текст кнопки
                 if (toggle.classList.contains('open')) {
                     toggle.innerHTML = '<span class="arrow">▼</span> Скрыть';
                 } else {
@@ -385,11 +379,9 @@
             drawPanel.classList.remove('visible');
             document.getElementById('map').classList.remove('map-drawing');
 
-            // ⭐ ГЛАВНОЕ ИЗМЕНЕНИЕ: стираем маршрут при выходе из режима
             clearCurrentRoute();
         }
 
-        // Клик по карте — ставим точку
         map.on('click', function(e) {
             if (!isDrawing) return;
 
