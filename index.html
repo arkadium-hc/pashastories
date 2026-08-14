@@ -15,6 +15,8 @@
             height: 100vh; 
             width: 100%; 
         }
+
+        /* Маркеры точек историй */
         .numbered-marker {
             width: 36px;
             height: 36px;
@@ -33,8 +35,11 @@
         .numbered-marker:hover {
             transform: scale(1.15);
         }
+
+        /* Попап аудио */
         .audio-popup { 
-            min-width: 220px; 
+            min-width: 240px; 
+            max-width: 280px;
             text-align: center; 
         }
         .audio-popup h3 { 
@@ -46,147 +51,233 @@
         .audio-popup audio { 
             width: 100%; 
             border-radius: 4px; 
+            margin-bottom: 8px;
         }
         .audio-popup .placeholder {
             color: #888;
             font-size: 14px;
             font-style: italic;
             padding: 8px 0;
+            margin-bottom: 8px;
         }
-        /* Панель управления */
-        .control-panel {
+
+        /* Кнопка раскрытия описания */
+        .desc-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: none;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 12px;
+            color: #555;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 4px;
+        }
+        .desc-toggle:hover {
+            background: #f5f5f5;
+            border-color: #ccc;
+        }
+        .desc-toggle .arrow {
+            display: inline-block;
+            transition: transform 0.3s ease;
+            font-size: 10px;
+        }
+        .desc-toggle.open .arrow {
+            transform: rotate(180deg);
+        }
+        .desc-toggle.open {
+            background: #f0f4ff;
+            border-color: #4361EE;
+            color: #4361EE;
+        }
+
+        /* Раскрывающееся описание */
+        .desc-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s ease, margin 0.35s ease, padding 0.35s ease;
+            text-align: left;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #555;
+            margin-top: 0;
+            padding: 0 4px;
+            border-left: 3px solid transparent;
+        }
+        .desc-content.open {
+            max-height: 400px;
+            margin-top: 12px;
+            padding: 10px 12px;
+            background: #fafafa;
+            border-radius: 6px;
+            border-left: 3px solid #4361EE;
+        }
+
+        /* Кнопка "Нарисовать маршрут" */
+        .draw-toggle {
             position: absolute;
             top: 20px;
             right: 20px;
             z-index: 1000;
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            max-width: 220px;
-        }
-        .control-panel button {
-            display: block;
-            width: 100%;
-            padding: 10px 15px;
-            margin-bottom: 8px;
+            padding: 12px 20px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
             cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             transition: all 0.2s;
-        }
-        .control-panel button:last-child {
-            margin-bottom: 0;
-        }
-        .btn-mode {
             background: #4361EE;
             color: white;
         }
-        .btn-mode:hover {
+        .draw-toggle:hover {
             background: #3651d4;
+            transform: translateY(-1px);
         }
-        .btn-mode.active {
-            background: #E63946;
+        .draw-toggle.active {
+            background: #2A9D8F;
         }
-        .btn-clear {
-            background: #f0f0f0;
+
+        /* Панель рисования */
+        .draw-panel {
+            position: absolute;
+            top: 70px;
+            right: 20px;
+            z-index: 1000;
+            background: white;
+            padding: 16px;
+            border-radius: 10px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            width: 220px;
+            display: none;
+            animation: slideDown 0.2s ease;
+        }
+        .draw-panel.visible {
+            display: block;
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .draw-panel .panel-title {
+            font-size: 14px;
+            font-weight: 600;
             color: #333;
+            margin-bottom: 4px;
         }
-        .btn-clear:hover {
-            background: #e0e0e0;
-        }
-        .control-panel .info {
+        .draw-panel .panel-hint {
             font-size: 12px;
-            color: #666;
-            margin-top: 8px;
-            text-align: center;
+            color: #888;
+            margin-bottom: 14px;
             line-height: 1.4;
         }
-        .control-panel .mode-indicator {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 11px;
-            font-weight: 600;
+        .draw-panel button {
+            display: block;
+            width: 100%;
+            padding: 10px 14px;
             margin-bottom: 8px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.15s;
+            text-align: left;
         }
-        .mode-free {
-            background: #E63946;
-            color: white;
+        .draw-panel button:last-of-type {
+            margin-bottom: 0;
         }
-        .mode-points {
-            background: #4361EE;
-            color: white;
+        .btn-undo {
+            background: #f5f5f5;
+            color: #333;
         }
-        /* Курсор в режиме рисования */
-        .drawing-mode {
+        .btn-undo:hover {
+            background: #e8e8e8;
+        }
+        .btn-undo:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .btn-delete {
+            background: #fdecea;
+            color: #c0392b;
+        }
+        .btn-delete:hover {
+            background: #f8d7da;
+        }
+        .btn-delete:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .draw-panel .point-counter {
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        /* Курсор-плюсик в режиме рисования */
+        .map-drawing {
             cursor: crosshair !important;
         }
-        .drawing-mode .leaflet-container {
+        .map-drawing .leaflet-container {
             cursor: crosshair !important;
+        }
+        .map-drawing .leaflet-marker-pane {
+            pointer-events: none;
         }
     </style>
 </head>
 <body>
     <div id="map"></div>
     
-    <div class="control-panel">
-        <div id="modeIndicator" class="mode-indicator mode-points">Режим: точки</div>
-        <button class="btn-mode" id="modeBtn">✏️ Свободное рисование</button>
-        <button class="btn-clear" id="clearBtn">🗑️ Очистить все маршруты</button>
-        <div class="info" id="drawInfo">
-            Включи режим и кликай на точки,<br>чтобы соединить их
-        </div>
+    <button class="draw-toggle" id="drawToggle">✏️ Нарисовать маршрут</button>
+    
+    <div class="draw-panel" id="drawPanel">
+        <div class="panel-title">Рисование маршрута</div>
+        <div class="panel-hint">Кликайте на карту, чтобы ставить точки маршрута</div>
+        <button class="btn-undo" id="btnUndo" disabled>↩ Удалить последнюю точку</button>
+        <button class="btn-delete" id="btnDelete" disabled>🗑 Удалить маршрут</button>
+        <div class="point-counter" id="pointCounter">Точек: 0</div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        const map = L.map('map').setView([56.3125, 38.1285], 14);
+        // === КАРТА ===
+        const map = L.map('map').setView([56.3125, 38.1285], 13);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap'
         }).addTo(map);
 
+        // === ДАННЫЕ ТОЧЕК ===
+        // 11 цветов для 11 точек
         const colors = [
             '#E63946', '#F4A261', '#2A9D8F', '#457B9D', '#6A4C93',
-            '#E76F51', '#06A77D', '#D62828', '#4361EE'
+            '#E76F51', '#06A77D', '#D62828', '#4361EE', '#8338EC', '#FF006E'
         ];
 
         const stories = [
-            { number: 1, title: "Начало", lat: 56.311186, lng: 38.132690, audio: "./audio/ira-lavra.m4a" },
-            { number: 2, title: "Лесное озеро", lat: 56.302385, lng: 38.195200, audio: "./audio/ira-lesnoe.m4a" },
-            { number: 3, title: "Бассейн Дельфин", lat: 56.303451, lng: 38.178942, audio: null },
-            { number: 4, title: "Автовокзал", lat: 56.303853, lng: 38.136041, audio: "./audio/polotentse.m4a" },
-            { number: 5, title: "ЖД полиция", lat: 56.305188, lng: 38.138321, audio: null },
-            { number: 6, title: "Келарка", lat: 56.303419, lng: 38.125795, audio: null },
-            { number: 7, title: "Трикотажка", lat: 56.311902, lng: 38.137340, audio: null },
-            { number: 8, title: "Бира", lat: 56.311501, lng: 38.135550, audio: null },
-            { number: 9, title: "СВОИ Фест", lat: 56.314181, lng: 38.137641, audio: null }
+            { number: 1, title: "Начало", lat: 56.311186, lng: 38.132690, audio: "./audio/ira-lavra.m4a", description: "Здесь всё началось — первая история нашего путешествия по городу." },
+            { number: 2, title: "Лесное озеро", lat: 56.302385, lng: 38.195200, audio: "./audio/ira-lesnoe.m4a", description: "Тихое место вдали от города, где можно услышать только птиц и шум ветра в деревьях." },
+            { number: 3, title: "Бассейн Дельфин", lat: 56.303451, lng: 38.178942, audio: null, description: null },
+            { number: 4, title: "Автовокзал", lat: 56.303853, lng: 38.136041, audio: "./audio/polotentse.m4a", description: "Место встреч и расставаний — здесь начинается и заканчивается множество историй." },
+            { number: 5, title: "ЖД полиция", lat: 56.305188, lng: 38.138321, audio: null, description: null },
+            { number: 6, title: "Келарка", lat: 56.303419, lng: 38.125795, audio: null, description: null },
+            { number: 7, title: "Трикотажка", lat: 56.311902, lng: 38.137340, audio: null, description: null },
+            { number: 8, title: "Бира", lat: 56.311501, lng: 38.135550, audio: null, description: null },
+            { number: 9, title: "СВОИ Фест", lat: 56.314181, lng: 38.137641, audio: null, description: null },
+            { number: 10, title: "Станция 76 км", lat: 56.344341, lng: 38.202045, audio: null, description: null },
+            { number: 11, title: "Хани", lat: 56.305032, lng: 38.133989, audio: null, description: null }
         ];
 
-        // Режимы рисования
-        const MODES = {
-            POINTS: 'points',      // Соединение точек кликами
-            FREE: 'free'           // Свободное рисование
-        };
-
-        let currentMode = MODES.POINTS;
-        let drawMode = false;
-        
-        // Для режима соединения точек
-        let pointRoutePoints = [];
-        let pointRouteLine = null;
-        
-        // Для режима свободного рисования
-        let freeRoutes = [];        // Массив всех нарисованных маршрутов
-        let currentFreeRoute = [];  // Текущая рисуемая линия
-        let currentFreeLine = null; // Текущая линия на карте
-        
         const markers = [];
 
-        // Добавляем маркеры
         stories.forEach(story => {
             const color = colors[(story.number - 1) % colors.length];
             
@@ -199,6 +290,7 @@
 
             const marker = L.marker([story.lat, story.lng], { icon: markerIcon }).addTo(map);
             
+            // Формируем содержимое попапа
             let popupContent = `<div class="audio-popup"><h3>${story.title}</h3>`;
             
             if (story.audio) {
@@ -210,201 +302,170 @@
                 popupContent += `<div class="placeholder">Аудио скоро появится 🎧</div>`;
             }
             
+            // Добавляем кнопку раскрытия описания, только если описание есть
+            if (story.description) {
+                popupContent += `
+                    <button class="desc-toggle" data-story="${story.number}">
+                        <span class="arrow">▼</span> Подробнее
+                    </button>
+                    <div class="desc-content" data-story-content="${story.number}">
+                        ${story.description}
+                    </div>
+                `;
+            }
+            
             popupContent += `</div>`;
             marker.bindPopup(popupContent);
-            
-            markers.push({
-                marker: marker,
-                data: story,
-                coords: [story.lat, story.lng]
-            });
-            
-            // Обработчик клика для режима соединения точек
-            marker.on('click', function() {
-                if (drawMode && currentMode === MODES.POINTS) {
-                    addToPointRoute(story);
-                }
-            });
+            markers.push(marker);
         });
 
-        // === РЕЖИМ СОЕДИНЕНИЯ ТОЧЕК ===
-        function addToPointRoute(story) {
-            pointRoutePoints.push([story.lat, story.lng]);
-            
-            if (pointRouteLine) {
-                map.removeLayer(pointRouteLine);
+        // Масштабируем карту по точкам
+        const group = L.featureGroup(markers);
+        map.fitBounds(group.getBounds(), { padding: [50, 50] });
+
+        // === ОБРАБОТЧИК РАСКРЫТИЯ ОПИСАНИЯ ===
+        // Используем делегирование событий, т.к. попапы создаются динамически
+        document.addEventListener('click', function(e) {
+            const toggle = e.target.closest('.desc-toggle');
+            if (toggle) {
+                e.stopPropagation(); // Чтобы клик не закрыл попап
+                const storyNum = toggle.getAttribute('data-story');
+                const content = document.querySelector(`[data-story-content="${storyNum}"]`);
+                toggle.classList.toggle('open');
+                content.classList.toggle('open');
+                
+                // Меняем текст кнопки
+                if (toggle.classList.contains('open')) {
+                    toggle.innerHTML = '<span class="arrow">▼</span> Скрыть';
+                } else {
+                    toggle.innerHTML = '<span class="arrow">▼</span> Подробнее';
+                }
             }
-            
-            if (pointRoutePoints.length > 1) {
-                pointRouteLine = L.polyline(pointRoutePoints, {
+        });
+
+        // === РИСОВАНИЕ МАРШРУТА ===
+        let isDrawing = false;
+        let routePoints = [];
+        let routeLine = null;
+        let routeDots = [];
+
+        const drawToggle = document.getElementById('drawToggle');
+        const drawPanel = document.getElementById('drawPanel');
+        const btnUndo = document.getElementById('btnUndo');
+        const btnDelete = document.getElementById('btnDelete');
+        const pointCounter = document.getElementById('pointCounter');
+
+        drawToggle.addEventListener('click', function() {
+            if (!isDrawing) {
+                startDrawing();
+            } else {
+                finishDrawing();
+            }
+        });
+
+        function startDrawing() {
+            isDrawing = true;
+            routePoints = [];
+            routeDots = [];
+            routeLine = null;
+
+            drawToggle.textContent = '✓ Готово';
+            drawToggle.classList.add('active');
+            drawPanel.classList.add('visible');
+            document.getElementById('map').classList.add('map-drawing');
+
+            updateButtons();
+        }
+
+        function finishDrawing() {
+            isDrawing = false;
+
+            drawToggle.textContent = '✏️ Нарисовать маршрут';
+            drawToggle.classList.remove('active');
+            drawPanel.classList.remove('visible');
+            document.getElementById('map').classList.remove('map-drawing');
+
+            // ⭐ ГЛАВНОЕ ИЗМЕНЕНИЕ: стираем маршрут при выходе из режима
+            clearCurrentRoute();
+        }
+
+        // Клик по карте — ставим точку
+        map.on('click', function(e) {
+            if (!isDrawing) return;
+
+            const latlng = e.latlng;
+            routePoints.push(latlng);
+
+            const dot = L.circleMarker(latlng, {
+                radius: 6,
+                color: '#fff',
+                weight: 2,
+                fillColor: '#E63946',
+                fillOpacity: 1
+            }).addTo(map);
+            routeDots.push(dot);
+
+            if (routeLine) {
+                map.removeLayer(routeLine);
+            }
+            if (routePoints.length >= 2) {
+                routeLine = L.polyline(routePoints, {
                     color: '#E63946',
-                    weight: 5,
-                    opacity: 0.8,
-                    lineCap: 'round'
+                    weight: 4,
+                    opacity: 0.85,
+                    lineCap: 'round',
+                    lineJoin: 'round'
                 }).addTo(map);
             }
-            
-            updateInfo();
-        }
 
-        // === РЕЖИМ СВОБОДНОГО РИСОВАНИЯ ===
-        let isDrawing = false;
-        let lastPointTime = 0;
-        const minDistance = 10; // Минимальное расстояние между точками в пикселях
-
-        function startFreeDrawing(e) {
-            if (!drawMode || currentMode !== MODES.FREE) return;
-            
-            isDrawing = true;
-            currentFreeRoute = [e.latlng];
-            
-            // Отключаем перетаскивание карты во время рисования
-            map.dragging.disable();
-            
-            // Создаём новую линию
-            currentFreeLine = L.polyline(currentFreeRoute, {
-                color: '#E63946',
-                weight: 4,
-                opacity: 0.8,
-                lineCap: 'round',
-                lineJoin: 'round'
-            }).addTo(map);
-        }
-
-        function continueFreeDrawing(e) {
-            if (!isDrawing) return;
-            
-            const now = Date.now();
-            // Ограничиваем частоту добавления точек (не чаще 30мс)
-            if (now - lastPointTime < 30) return;
-            
-            // Проверяем минимальное расстояние
-            const lastPoint = currentFreeRoute[currentFreeRoute.length - 1];
-            const lastPixel = map.latLngToContainerPoint(lastPoint);
-            const currentPixel = map.latLngToContainerPoint(e.latlng);
-            const distance = Math.sqrt(
-                Math.pow(currentPixel.x - lastPixel.x, 2) + 
-                Math.pow(currentPixel.y - lastPixel.y, 2)
-            );
-            
-            if (distance < minDistance) return;
-            
-            currentFreeRoute.push(e.latlng);
-            currentFreeLine.setLatLngs(currentFreeRoute);
-            lastPointTime = now;
-        }
-
-        function endFreeDrawing() {
-            if (!isDrawing) return;
-            
-            isDrawing = false;
-            map.dragging.enable();
-            
-            // Сохраняем маршрут, если в нём достаточно точек
-            if (currentFreeRoute.length > 1) {
-                freeRoutes.push({
-                    line: currentFreeLine,
-                    points: currentFreeRoute
-                });
-                updateInfo();
-            } else if (currentFreeLine) {
-                map.removeLayer(currentFreeLine);
-            }
-            
-            currentFreeRoute = [];
-            currentFreeLine = null;
-        }
-
-        // Обработчики событий карты для свободного рисования
-        map.on('mousedown', startFreeDrawing);
-        map.on('mousemove', continueFreeDrawing);
-        map.on('mouseup', endFreeDrawing);
-        
-        // Для мобильных устройств
-        map.on('touchstart', function(e) {
-            if (e.originalEvent.touches.length === 1) {
-                startFreeDrawing({ latlng: e.latlng });
-            }
-        });
-        map.on('touchmove', function(e) {
-            if (e.originalEvent.touches.length === 1) {
-                continueFreeDrawing({ latlng: e.latlng });
-            }
-        });
-        map.on('touchend', endFreeDrawing);
-
-        // === УПРАВЛЕНИЕ РЕЖИМАМИ ===
-        function updateInfo() {
-            const infoEl = document.getElementById('drawInfo');
-            
-            if (!drawMode) {
-                infoEl.innerHTML = 'Включи режим и кликай на точки,<br>чтобы соединить их';
-                return;
-            }
-            
-            if (currentMode === MODES.POINTS) {
-                infoEl.innerHTML = `Кликай на точки для соединения<br>Точек в маршруте: ${pointRoutePoints.length}`;
-            } else {
-                infoEl.innerHTML = `Зажми и веди по карте 🎨<br>Маршрутов нарисовано: ${freeRoutes.length}`;
-            }
-        }
-
-        function updateModeIndicator() {
-            const indicator = document.getElementById('modeIndicator');
-            if (currentMode === MODES.POINTS) {
-                indicator.textContent = 'Режим: точки';
-                indicator.className = 'mode-indicator mode-points';
-            } else {
-                indicator.textContent = 'Режим: рисование';
-                indicator.className = 'mode-indicator mode-free';
-            }
-        }
-
-        // Кнопка переключения режима
-        document.getElementById('modeBtn').addEventListener('click', function() {
-            if (currentMode === MODES.POINTS) {
-                currentMode = MODES.FREE;
-                this.textContent = '📍 Соединять точки';
-                document.getElementById('map').classList.add('drawing-mode');
-            } else {
-                currentMode = MODES.POINTS;
-                this.textContent = '✏️ Свободное рисование';
-                document.getElementById('map').classList.remove('drawing-mode');
-            }
-            
-            drawMode = true;
-            this.classList.add('active');
-            updateModeIndicator();
-            updateInfo();
+            updateButtons();
         });
 
-        // Кнопка очистки
-        document.getElementById('clearBtn').addEventListener('click', function() {
-            // Очищаем маршрут точек
-            pointRoutePoints = [];
-            if (pointRouteLine) {
-                map.removeLayer(pointRouteLine);
-                pointRouteLine = null;
+        btnUndo.addEventListener('click', function() {
+            if (routePoints.length === 0) return;
+
+            routePoints.pop();
+            const lastDot = routeDots.pop();
+            if (lastDot) map.removeLayer(lastDot);
+
+            if (routeLine) {
+                map.removeLayer(routeLine);
+                routeLine = null;
             }
-            
-            // Очищаем все свободные маршруты
-            freeRoutes.forEach(route => {
-                map.removeLayer(route.line);
-            });
-            freeRoutes = [];
-            
-            if (currentFreeLine) {
-                map.removeLayer(currentFreeLine);
-                currentFreeLine = null;
+            if (routePoints.length >= 2) {
+                routeLine = L.polyline(routePoints, {
+                    color: '#E63946',
+                    weight: 4,
+                    opacity: 0.85,
+                    lineCap: 'round',
+                    lineJoin: 'round'
+                }).addTo(map);
             }
-            currentFreeRoute = [];
-            
-            updateInfo();
+
+            updateButtons();
         });
 
-        // Автоматически масштабируем карту
-        const group = new L.featureGroup(markers.map(m => m.marker));
-        map.fitBounds(group.getBounds(), { padding: [50, 50] });
+        btnDelete.addEventListener('click', function() {
+            clearCurrentRoute();
+            updateButtons();
+        });
+
+        function clearCurrentRoute() {
+            routePoints = [];
+            routeDots.forEach(dot => map.removeLayer(dot));
+            routeDots = [];
+            if (routeLine) {
+                map.removeLayer(routeLine);
+                routeLine = null;
+            }
+        }
+
+        function updateButtons() {
+            const hasPoints = routePoints.length > 0;
+            btnUndo.disabled = !hasPoints;
+            btnDelete.disabled = !hasPoints;
+            pointCounter.textContent = `Точек: ${routePoints.length}`;
+        }
     </script>
 </body>
 </html>
