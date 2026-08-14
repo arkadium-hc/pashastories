@@ -53,6 +53,7 @@
             font-style: italic;
             padding: 8px 0;
         }
+        /* Панель управления */
         .control-panel {
             position: absolute;
             top: 20px;
@@ -62,6 +63,7 @@
             padding: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            max-width: 220px;
         }
         .control-panel button {
             display: block;
@@ -78,14 +80,14 @@
         .control-panel button:last-child {
             margin-bottom: 0;
         }
-        .btn-draw {
+        .btn-mode {
             background: #4361EE;
             color: white;
         }
-        .btn-draw:hover {
+        .btn-mode:hover {
             background: #3651d4;
         }
-        .btn-draw.active {
+        .btn-mode.active {
             background: #E63946;
         }
         .btn-clear {
@@ -100,6 +102,30 @@
             color: #666;
             margin-top: 8px;
             text-align: center;
+            line-height: 1.4;
+        }
+        .control-panel .mode-indicator {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .mode-free {
+            background: #E63946;
+            color: white;
+        }
+        .mode-points {
+            background: #4361EE;
+            color: white;
+        }
+        /* Курсор в режиме рисования */
+        .drawing-mode {
+            cursor: crosshair !important;
+        }
+        .drawing-mode .leaflet-container {
+            cursor: crosshair !important;
         }
     </style>
 </head>
@@ -107,9 +133,12 @@
     <div id="map"></div>
     
     <div class="control-panel">
-        <button class="btn-draw" id="drawBtn">🎨 Рисовать маршрут</button>
-        <button class="btn-clear" id="clearBtn">🗑️ Очистить маршрут</button>
-        <div class="info" id="drawInfo">Кликай на точки, чтобы соединить их</div>
+        <div id="modeIndicator" class="mode-indicator mode-points">Режим: точки</div>
+        <button class="btn-mode" id="modeBtn">✏️ Свободное рисование</button>
+        <button class="btn-clear" id="clearBtn">🗑️ Очистить все маршруты</button>
+        <div class="info" id="drawInfo">
+            Включи режим и кликай на точки,<br>чтобы соединить их
+        </div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -125,7 +154,6 @@
             '#E76F51', '#06A77D', '#D62828', '#4361EE'
         ];
 
-        // ⚠️ ВАЖНО: теперь ссылки относительные — файлы лежат в папке audio
         const stories = [
             { number: 1, title: "Начало", lat: 56.311186, lng: 38.132690, audio: "./audio/ira-lavra.m4a" },
             { number: 2, title: "Лесное озеро", lat: 56.302385, lng: 38.195200, audio: "./audio/ira-lesnoe.m4a" },
@@ -138,11 +166,27 @@
             { number: 9, title: "СВОИ Фест", lat: 56.314181, lng: 38.137641, audio: null }
         ];
 
+        // Режимы рисования
+        const MODES = {
+            POINTS: 'points',      // Соединение точек кликами
+            FREE: 'free'           // Свободное рисование
+        };
+
+        let currentMode = MODES.POINTS;
         let drawMode = false;
-        let routePoints = [];
-        let routeLine = null;
+        
+        // Для режима соединения точек
+        let pointRoutePoints = [];
+        let pointRouteLine = null;
+        
+        // Для режима свободного рисования
+        let freeRoutes = [];        // Массив всех нарисованных маршрутов
+        let currentFreeRoute = [];  // Текущая рисуемая линия
+        let currentFreeLine = null; // Текущая линия на карте
+        
         const markers = [];
 
+        // Добавляем маркеры
         stories.forEach(story => {
             const color = colors[(story.number - 1) % colors.length];
             
@@ -175,22 +219,24 @@
                 coords: [story.lat, story.lng]
             });
             
+            // Обработчик клика для режима соединения точек
             marker.on('click', function() {
-                if (drawMode) {
-                    addToRoute(story);
+                if (drawMode && currentMode === MODES.POINTS) {
+                    addToPointRoute(story);
                 }
             });
         });
 
-        function addToRoute(story) {
-            routePoints.push([story.lat, story.lng]);
+        // === РЕЖИМ СОЕДИНЕНИЯ ТОЧЕК ===
+        function addToPointRoute(story) {
+            pointRoutePoints.push([story.lat, story.lng]);
             
-            if (routeLine) {
-                map.removeLayer(routeLine);
+            if (pointRouteLine) {
+                map.removeLayer(pointRouteLine);
             }
             
-            if (routePoints.length > 1) {
-                routeLine = L.polyline(routePoints, {
+            if (pointRoutePoints.length > 1) {
+                pointRouteLine = L.polyline(pointRoutePoints, {
                     color: '#E63946',
                     weight: 5,
                     opacity: 0.8,
@@ -198,37 +244,165 @@
                 }).addTo(map);
             }
             
-            document.getElementById('drawInfo').textContent = 
-                `Точек в маршруте: ${routePoints.length}`;
+            updateInfo();
         }
 
-        document.getElementById('drawBtn').addEventListener('click', function() {
-            drawMode = !drawMode;
-            this.classList.toggle('active');
+        // === РЕЖИМ СВОБОДНОГО РИСОВАНИЯ ===
+        let isDrawing = false;
+        let lastPointTime = 0;
+        const minDistance = 10; // Минимальное расстояние между точками в пикселях
+
+        function startFreeDrawing(e) {
+            if (!drawMode || currentMode !== MODES.FREE) return;
             
-            if (drawMode) {
-                this.textContent = '✋ Завершить рисование';
-                document.getElementById('drawInfo').textContent = 
-                    'Кликай на точки, чтобы соединить их';
+            isDrawing = true;
+            currentFreeRoute = [e.latlng];
+            
+            // Отключаем перетаскивание карты во время рисования
+            map.dragging.disable();
+            
+            // Создаём новую линию
+            currentFreeLine = L.polyline(currentFreeRoute, {
+                color: '#E63946',
+                weight: 4,
+                opacity: 0.8,
+                lineCap: 'round',
+                lineJoin: 'round'
+            }).addTo(map);
+        }
+
+        function continueFreeDrawing(e) {
+            if (!isDrawing) return;
+            
+            const now = Date.now();
+            // Ограничиваем частоту добавления точек (не чаще 30мс)
+            if (now - lastPointTime < 30) return;
+            
+            // Проверяем минимальное расстояние
+            const lastPoint = currentFreeRoute[currentFreeRoute.length - 1];
+            const lastPixel = map.latLngToContainerPoint(lastPoint);
+            const currentPixel = map.latLngToContainerPoint(e.latlng);
+            const distance = Math.sqrt(
+                Math.pow(currentPixel.x - lastPixel.x, 2) + 
+                Math.pow(currentPixel.y - lastPixel.y, 2)
+            );
+            
+            if (distance < minDistance) return;
+            
+            currentFreeRoute.push(e.latlng);
+            currentFreeLine.setLatLngs(currentFreeRoute);
+            lastPointTime = now;
+        }
+
+        function endFreeDrawing() {
+            if (!isDrawing) return;
+            
+            isDrawing = false;
+            map.dragging.enable();
+            
+            // Сохраняем маршрут, если в нём достаточно точек
+            if (currentFreeRoute.length > 1) {
+                freeRoutes.push({
+                    line: currentFreeLine,
+                    points: currentFreeRoute
+                });
+                updateInfo();
+            } else if (currentFreeLine) {
+                map.removeLayer(currentFreeLine);
+            }
+            
+            currentFreeRoute = [];
+            currentFreeLine = null;
+        }
+
+        // Обработчики событий карты для свободного рисования
+        map.on('mousedown', startFreeDrawing);
+        map.on('mousemove', continueFreeDrawing);
+        map.on('mouseup', endFreeDrawing);
+        
+        // Для мобильных устройств
+        map.on('touchstart', function(e) {
+            if (e.originalEvent.touches.length === 1) {
+                startFreeDrawing({ latlng: e.latlng });
+            }
+        });
+        map.on('touchmove', function(e) {
+            if (e.originalEvent.touches.length === 1) {
+                continueFreeDrawing({ latlng: e.latlng });
+            }
+        });
+        map.on('touchend', endFreeDrawing);
+
+        // === УПРАВЛЕНИЕ РЕЖИМАМИ ===
+        function updateInfo() {
+            const infoEl = document.getElementById('drawInfo');
+            
+            if (!drawMode) {
+                infoEl.innerHTML = 'Включи режим и кликай на точки,<br>чтобы соединить их';
+                return;
+            }
+            
+            if (currentMode === MODES.POINTS) {
+                infoEl.innerHTML = `Кликай на точки для соединения<br>Точек в маршруте: ${pointRoutePoints.length}`;
             } else {
-                this.textContent = '🎨 Рисовать маршрут';
-                document.getElementById('drawInfo').textContent = 
-                    routePoints.length > 0 ? 
-                    `Маршрут сохранён (${routePoints.length} точек)` : 
-                    'Кликай на точки, чтобы соединить их';
+                infoEl.innerHTML = `Зажми и веди по карте 🎨<br>Маршрутов нарисовано: ${freeRoutes.length}`;
             }
+        }
+
+        function updateModeIndicator() {
+            const indicator = document.getElementById('modeIndicator');
+            if (currentMode === MODES.POINTS) {
+                indicator.textContent = 'Режим: точки';
+                indicator.className = 'mode-indicator mode-points';
+            } else {
+                indicator.textContent = 'Режим: рисование';
+                indicator.className = 'mode-indicator mode-free';
+            }
+        }
+
+        // Кнопка переключения режима
+        document.getElementById('modeBtn').addEventListener('click', function() {
+            if (currentMode === MODES.POINTS) {
+                currentMode = MODES.FREE;
+                this.textContent = '📍 Соединять точки';
+                document.getElementById('map').classList.add('drawing-mode');
+            } else {
+                currentMode = MODES.POINTS;
+                this.textContent = '✏️ Свободное рисование';
+                document.getElementById('map').classList.remove('drawing-mode');
+            }
+            
+            drawMode = true;
+            this.classList.add('active');
+            updateModeIndicator();
+            updateInfo();
         });
 
+        // Кнопка очистки
         document.getElementById('clearBtn').addEventListener('click', function() {
-            routePoints = [];
-            if (routeLine) {
-                map.removeLayer(routeLine);
-                routeLine = null;
+            // Очищаем маршрут точек
+            pointRoutePoints = [];
+            if (pointRouteLine) {
+                map.removeLayer(pointRouteLine);
+                pointRouteLine = null;
             }
-            document.getElementById('drawInfo').textContent = 
-                'Кликай на точки, чтобы соединить их';
+            
+            // Очищаем все свободные маршруты
+            freeRoutes.forEach(route => {
+                map.removeLayer(route.line);
+            });
+            freeRoutes = [];
+            
+            if (currentFreeLine) {
+                map.removeLayer(currentFreeLine);
+                currentFreeLine = null;
+            }
+            currentFreeRoute = [];
+            
+            updateInfo();
         });
 
+        // Автоматически масштабируем карту
         const group = new L.featureGroup(markers.map(m => m.marker));
         map.fitBounds(group.getBounds(), { padding: [50, 50] });
     </script>
