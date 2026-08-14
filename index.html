@@ -4,35 +4,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Истории Пашиных друзей</title>
+    
+    <!-- Подключаем современный шрифт Manrope -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         body { 
             margin: 0; 
             padding: 0; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background: #f5f1eb;
+            font-family: 'Manrope', sans-serif; 
+            background: #F9F6F1;
         }
         #map { 
             height: 100vh; 
             width: 100%; 
         }
 
-        /* Маркеры точек - простые круглые иконки */
+        /* === МАРКЕРЫ НА КАРТЕ === */
         .story-marker {
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
-            background: #C87941;
-            border: 3px solid #fff;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+            background: #C87941; /* Теплый кирпичный */
+            border: 3px solid #ffffff;
+            box-shadow: 0 3px 10px rgba(107, 84, 69, 0.3);
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .story-marker:hover {
-            transform: scale(1.15);
+            transform: scale(1.15) translateY(-2px);
+            background: #B8604A;
+            box-shadow: 0 6px 16px rgba(107, 84, 69, 0.4);
         }
 
-        /* Попап аудио */
+        /* === ВСПЛЫВАЮЩАЯ ПОДСКАЗКА ПРИ НАВЕДЕНИИ === */
+        .custom-tooltip {
+            background: #6B5445;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Manrope', sans-serif;
+            box-shadow: 0 4px 12px rgba(107, 84, 69, 0.25);
+        }
+        .custom-tooltip .leaflet-tooltip-tip {
+            background: #6B5445;
+        }
+
+        /* === ОКНО ПРИ НАЖАТИИ (ПОПАП) === */
         .audio-popup { 
             min-width: 220px; 
             max-width: 260px;
@@ -40,26 +64,29 @@
         }
         .audio-popup h3 { 
             margin: 0 0 10px 0; 
-            font-size: 16px; 
+            font-size: 17px; 
             color: #6B5445; 
-            font-weight: 600;
+            font-weight: 700;
         }
+        /* Компактный и аккуратный плеер */
         .audio-popup audio { 
             width: 100%; 
-            max-width: 200px;
-            height: 32px;
-            border-radius: 4px; 
+            height: 36px;
+            border-radius: 18px;
             margin-bottom: 8px;
+            background: #F5F1EB;
         }
         .audio-popup .placeholder {
             color: #8B6F47;
             font-size: 13px;
             font-style: italic;
-            padding: 6px 0;
+            padding: 8px 0;
             margin-bottom: 8px;
+            background: #F5F1EB;
+            border-radius: 18px;
         }
 
-        /* Кнопка раскрытия описания */
+        /* === КНОПКА РАСКРЫТИЯ ОПИСАНИЯ === */
         .desc-toggle {
             display: inline-flex;
             align-items: center;
@@ -67,15 +94,17 @@
             background: none;
             border: 1px solid #E6C9A8;
             border-radius: 20px;
-            padding: 5px 12px;
+            padding: 6px 14px;
             font-size: 12px;
+            font-weight: 600;
             color: #8B6F47;
             cursor: pointer;
             transition: all 0.2s;
             margin-top: 4px;
+            font-family: 'Manrope', sans-serif;
         }
         .desc-toggle:hover {
-            background: #f5f1eb;
+            background: #F5F1EB;
             border-color: #D4A574;
         }
         .desc-toggle .arrow {
@@ -92,7 +121,7 @@
             color: #6B5445;
         }
 
-        /* Раскрывающееся описание */
+        /* === РАСКРЫВАЮЩЕЕСЯ ОПИСАНИЕ === */
         .desc-content {
             max-height: 0;
             overflow: hidden;
@@ -109,12 +138,12 @@
             max-height: 400px;
             margin-top: 10px;
             padding: 10px 12px;
-            background: #faf7f2;
+            background: #FAF7F2;
             border-radius: 6px;
             border-left: 3px solid #C87941;
         }
 
-        /* Кнопка "Нарисовать маршрут" */
+        /* === КНОПКА "НАРИСОВАТЬ МАРШРУТ" === */
         .draw-toggle {
             position: absolute;
             top: 20px;
@@ -122,14 +151,15 @@
             z-index: 1000;
             padding: 12px 20px;
             border: none;
-            border-radius: 8px;
-            font-size: 15px;
+            border-radius: 10px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 12px rgba(107, 84, 69, 0.2);
             transition: all 0.2s;
             background: #C87941;
             color: white;
+            font-family: 'Manrope', sans-serif;
         }
         .draw-toggle:hover {
             background: #B8604A;
@@ -139,19 +169,20 @@
             background: #8B6F47;
         }
 
-        /* Панель рисования */
+        /* === ПАНЕЛЬ РИСОВАНИЯ === */
         .draw-panel {
             position: absolute;
-            top: 70px;
+            top: 72px;
             right: 20px;
             z-index: 1000;
-            background: white;
+            background: #ffffff;
             padding: 16px;
-            border-radius: 10px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(107, 84, 69, 0.15);
             width: 220px;
             display: none;
             animation: slideDown 0.2s ease;
+            font-family: 'Manrope', sans-serif;
         }
         .draw-panel.visible {
             display: block;
@@ -162,7 +193,7 @@
         }
         .draw-panel .panel-title {
             font-size: 14px;
-            font-weight: 600;
+            font-weight: 700;
             color: #6B5445;
             margin-bottom: 4px;
         }
@@ -178,18 +209,19 @@
             padding: 10px 14px;
             margin-bottom: 8px;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 13px;
-            font-weight: 500;
+            font-weight: 600;
             transition: all 0.15s;
             text-align: left;
+            font-family: 'Manrope', sans-serif;
         }
         .draw-panel button:last-of-type {
             margin-bottom: 0;
         }
         .btn-undo {
-            background: #f5f1eb;
+            background: #F5F1EB;
             color: #6B5445;
         }
         .btn-undo:hover {
@@ -200,11 +232,11 @@
             cursor: not-allowed;
         }
         .btn-delete {
-            background: #fdecea;
+            background: #FDECEA;
             color: #B8604A;
         }
         .btn-delete:hover {
-            background: #f8d7da;
+            background: #F8D7DA;
         }
         .btn-delete:disabled {
             opacity: 0.4;
@@ -217,9 +249,10 @@
             margin-top: 10px;
             padding-top: 10px;
             border-top: 1px solid #E6C9A8;
+            font-weight: 500;
         }
 
-        /* Курсор-плюсик в режиме рисования */
+        /* === РЕЖИМ РИСОВАНИЯ === */
         .map-drawing {
             cursor: crosshair !important;
         }
@@ -228,11 +261,6 @@
         }
         .map-drawing .leaflet-marker-pane {
             pointer-events: none;
-        }
-
-        /* Стили для линии маршрута */
-        .route-line {
-            stroke: #C87941;
         }
     </style>
 </head>
@@ -243,7 +271,7 @@
     
     <div class="draw-panel" id="drawPanel">
         <div class="panel-title">Рисование маршрута</div>
-        <div class="panel-hint">Кликайте на карту, чтобы ставить точки маршрута</div>
+        <div class="panel-hint">Кликайте на карту, чтобы ставить точки</div>
         <button class="btn-undo" id="btnUndo" disabled>↩ Удалить последнюю точку</button>
         <button class="btn-delete" id="btnDelete" disabled>🗑 Удалить маршрут</button>
         <div class="point-counter" id="pointCounter">Точек: 0</div>
@@ -254,7 +282,6 @@
         // === КАРТА ===
         const map = L.map('map').setView([56.3125, 38.1285], 13);
 
-        // Светлая карта с теплыми оттенками
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap'
         }).addTo(map);
@@ -279,16 +306,25 @@
         const markers = [];
 
         stories.forEach(story => {
-            // Простая круглая иконка без номера
+            // Элегантный круглый маркер без номера
             const markerIcon = L.divIcon({
                 className: '',
                 html: `<div class="story-marker"></div>`,
-                iconSize: [28, 28],
-                iconAnchor: [14, 14]
+                iconSize: [32, 32],
+                iconAnchor: [16, 16]
             });
 
             const marker = L.marker([story.lat, story.lng], { icon: markerIcon }).addTo(map);
             
+            // Всплывающая подсказка при наведении (tooltip)
+            marker.bindTooltip(story.title, {
+                direction: 'top',
+                offset: [0, -12],
+                className: 'custom-tooltip',
+                opacity: 1
+            });
+            
+            // Формируем содержимое попапа при клике
             let popupContent = `<div class="audio-popup"><h3>${story.title}</h3>`;
             
             if (story.audio) {
@@ -316,6 +352,7 @@
             markers.push(marker);
         });
 
+        // Автоматическое масштабирование карты по всем точкам
         const group = L.featureGroup(markers);
         map.fitBounds(group.getBounds(), { padding: [50, 50] });
 
@@ -323,7 +360,7 @@
         document.addEventListener('click', function(e) {
             const toggle = e.target.closest('.desc-toggle');
             if (toggle) {
-                e.stopPropagation();
+                e.stopPropagation(); // Предотвращаем закрытие попапа
                 const storyNum = toggle.getAttribute('data-story');
                 const content = document.querySelector(`[data-story-content="${storyNum}"]`);
                 toggle.classList.toggle('open');
@@ -388,10 +425,9 @@
             const latlng = e.latlng;
             routePoints.push(latlng);
 
-            // Точка маршрута в теплых тонах
             const dot = L.circleMarker(latlng, {
                 radius: 5,
-                color: '#fff',
+                color: '#ffffff',
                 weight: 2,
                 fillColor: '#C87941',
                 fillOpacity: 1
@@ -405,7 +441,7 @@
                 routeLine = L.polyline(routePoints, {
                     color: '#C87941',
                     weight: 3,
-                    opacity: 0.8,
+                    opacity: 0.85,
                     lineCap: 'round',
                     lineJoin: 'round'
                 }).addTo(map);
@@ -429,7 +465,7 @@
                 routeLine = L.polyline(routePoints, {
                     color: '#C87941',
                     weight: 3,
-                    opacity: 0.8,
+                    opacity: 0.85,
                     lineCap: 'round',
                     lineJoin: 'round'
                 }).addTo(map);
