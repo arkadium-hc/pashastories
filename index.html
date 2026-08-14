@@ -5,17 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Истории Пашиных друзей</title>
     
-    <!-- Подключаем современный шрифт Manrope -->
+    <!-- Современный шрифт Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         body { 
             margin: 0; 
             padding: 0; 
-            font-family: 'Manrope', sans-serif; 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
             background: #F9F6F1;
         }
         #map { 
@@ -23,21 +23,15 @@
             width: 100%; 
         }
 
-        /* === МАРКЕРЫ НА КАРТЕ === */
-        .story-marker {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: #C87941; /* Теплый кирпичный */
-            border: 3px solid #ffffff;
-            box-shadow: 0 3px 10px rgba(107, 84, 69, 0.3);
+        /* === МАРКЕР-БУЛАВКА С PLAY === */
+        .story-marker-svg {
+            filter: drop-shadow(0 3px 6px rgba(107, 84, 69, 0.3));
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), filter 0.25s;
             cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .story-marker:hover {
-            transform: scale(1.15) translateY(-2px);
-            background: #B8604A;
-            box-shadow: 0 6px 16px rgba(107, 84, 69, 0.4);
+        .story-marker-svg:hover {
+            transform: scale(1.1) translateY(-3px);
+            filter: drop-shadow(0 6px 12px rgba(107, 84, 69, 0.4));
         }
 
         /* === ВСПЛЫВАЮЩАЯ ПОДСКАЗКА ПРИ НАВЕДЕНИИ === */
@@ -49,7 +43,7 @@
             padding: 6px 14px;
             font-size: 13px;
             font-weight: 600;
-            font-family: 'Manrope', sans-serif;
+            font-family: 'Inter', sans-serif;
             box-shadow: 0 4px 12px rgba(107, 84, 69, 0.25);
         }
         .custom-tooltip .leaflet-tooltip-tip {
@@ -58,32 +52,104 @@
 
         /* === ОКНО ПРИ НАЖАТИИ (ПОПАП) === */
         .audio-popup { 
-            min-width: 220px; 
-            max-width: 260px;
+            min-width: 240px; 
+            max-width: 280px;
             text-align: center; 
         }
         .audio-popup h3 { 
-            margin: 0 0 10px 0; 
+            margin: 0 0 12px 0; 
             font-size: 17px; 
             color: #6B5445; 
             font-weight: 700;
         }
-        /* Компактный и аккуратный плеер */
-        .audio-popup audio { 
-            width: 100%; 
-            height: 36px;
-            border-radius: 18px;
-            margin-bottom: 8px;
-            background: #F5F1EB;
+
+        /* === КАСТОМНЫЙ АУДИОПЛЕЕР (как в примере) === */
+        .custom-audio-player {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #FAF7F2;
+            border: 1px solid #E6C9A8;
+            border-radius: 12px;
+            padding: 10px 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
         }
+        .custom-audio-player:hover {
+            background: #F5F1EB;
+            border-color: #D4A574;
+        }
+        .custom-audio-player:active {
+            transform: scale(0.98);
+        }
+        .play-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #C87941;
+            border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .play-btn:hover {
+            background: #B8604A;
+        }
+        .play-btn:active {
+            transform: scale(0.9);
+        }
+        .track-info {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            text-align: left;
+        }
+        .track-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #6B5445;
+        }
+        .track-time {
+            font-size: 11px;
+            color: #8B6F47;
+            font-variant-numeric: tabular-nums;
+            font-weight: 500;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #E6C9A8;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: #C87941;
+            border-radius: 2px;
+            transition: width 0.1s linear;
+        }
+        .hidden-audio {
+            display: none;
+        }
+
         .audio-popup .placeholder {
             color: #8B6F47;
             font-size: 13px;
             font-style: italic;
-            padding: 8px 0;
-            margin-bottom: 8px;
+            padding: 10px 0;
+            margin-bottom: 10px;
             background: #F5F1EB;
-            border-radius: 18px;
+            border-radius: 12px;
+            font-weight: 500;
         }
 
         /* === КНОПКА РАСКРЫТИЯ ОПИСАНИЯ === */
@@ -101,7 +167,7 @@
             cursor: pointer;
             transition: all 0.2s;
             margin-top: 4px;
-            font-family: 'Manrope', sans-serif;
+            font-family: 'Inter', sans-serif;
         }
         .desc-toggle:hover {
             background: #F5F1EB;
@@ -159,7 +225,7 @@
             transition: all 0.2s;
             background: #C87941;
             color: white;
-            font-family: 'Manrope', sans-serif;
+            font-family: 'Inter', sans-serif;
         }
         .draw-toggle:hover {
             background: #B8604A;
@@ -182,7 +248,7 @@
             width: 220px;
             display: none;
             animation: slideDown 0.2s ease;
-            font-family: 'Manrope', sans-serif;
+            font-family: 'Inter', sans-serif;
         }
         .draw-panel.visible {
             display: block;
@@ -215,7 +281,7 @@
             font-weight: 600;
             transition: all 0.15s;
             text-align: left;
-            font-family: 'Manrope', sans-serif;
+            font-family: 'Inter', sans-serif;
         }
         .draw-panel button:last-of-type {
             margin-bottom: 0;
@@ -306,20 +372,24 @@
         const markers = [];
 
         stories.forEach(story => {
-            // Элегантный круглый маркер без номера
+            // SVG-иконка: булавка с белым значком play в центре
             const markerIcon = L.divIcon({
                 className: '',
-                html: `<div class="story-marker"></div>`,
-                iconSize: [32, 32],
-                iconAnchor: [16, 16]
+                html: `
+                <svg class="story-marker-svg" width="36" height="44" viewBox="0 0 36 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 0C8.059 0 0 8.059 0 18C0 31.5 18 44 18 44C18 44 36 31.5 36 18C36 8.059 27.941 0 18 0Z" fill="#C87941"/>
+                    <path d="M14.5 13L22.5 18L14.5 23V13Z" fill="white"/>
+                </svg>`,
+                iconSize: [36, 44],
+                iconAnchor: [18, 44] // Привязка к острию булавки
             });
 
             const marker = L.marker([story.lat, story.lng], { icon: markerIcon }).addTo(map);
             
-            // Всплывающая подсказка при наведении (tooltip)
+            // Всплывающая подсказка при наведении
             marker.bindTooltip(story.title, {
                 direction: 'top',
-                offset: [0, -12],
+                offset: [0, -14],
                 className: 'custom-tooltip',
                 opacity: 1
             });
@@ -328,10 +398,18 @@
             let popupContent = `<div class="audio-popup"><h3>${story.title}</h3>`;
             
             if (story.audio) {
-                popupContent += `<audio controls preload="none">
-                    <source src="${story.audio}" type="audio/mp4">
-                    Ваш браузер не поддерживает аудио.
-                </audio>`;
+                popupContent += `
+                <div class="custom-audio-player" data-src="${story.audio}">
+                    <button class="play-btn">▶</button>
+                    <div class="track-info">
+                        <span class="track-name">Слушать</span>
+                        <span class="track-time">0:00</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                    <audio class="hidden-audio" src="${story.audio}"></audio>
+                </div>`;
             } else {
                 popupContent += `<div class="placeholder">Аудио скоро появится 🎧</div>`;
             }
@@ -356,11 +434,12 @@
         const group = L.featureGroup(markers);
         map.fitBounds(group.getBounds(), { padding: [50, 50] });
 
-        // === ОБРАБОТЧИК РАСКРЫТИЯ ОПИСАНИЯ ===
+        // === ОБРАБОТЧИКИ СОБЫТИЙ ===
         document.addEventListener('click', function(e) {
+            // 1. Обработка кнопки раскрытия описания
             const toggle = e.target.closest('.desc-toggle');
             if (toggle) {
-                e.stopPropagation(); // Предотвращаем закрытие попапа
+                e.stopPropagation();
                 const storyNum = toggle.getAttribute('data-story');
                 const content = document.querySelector(`[data-story-content="${storyNum}"]`);
                 toggle.classList.toggle('open');
@@ -371,6 +450,57 @@
                 } else {
                     toggle.innerHTML = '<span class="arrow">▼</span> Подробнее';
                 }
+                return;
+            }
+
+            // 2. Обработка кастомного аудиоплеера
+            const player = e.target.closest('.custom-audio-player');
+            if (player) {
+                e.stopPropagation(); // Чтобы клик не закрывал попап и не ставил точку маршрута
+                
+                const audio = player.querySelector('.hidden-audio');
+                const playBtn = player.querySelector('.play-btn');
+                const timeDisplay = player.querySelector('.track-time');
+                const progressFill = player.querySelector('.progress-fill');
+
+                if (audio.paused) {
+                    // Ставим на паузу все остальные плееры на карте
+                    document.querySelectorAll('.hidden-audio').forEach(a => {
+                        if (a !== audio) {
+                            a.pause();
+                            a.currentTime = 0;
+                            const otherPlayer = a.parentElement;
+                            otherPlayer.querySelector('.play-btn').textContent = '▶';
+                            otherPlayer.querySelector('.track-time').textContent = '0:00';
+                            otherPlayer.querySelector('.progress-fill').style.width = '0%';
+                        }
+                    });
+                    
+                    audio.play();
+                    playBtn.textContent = '⏸';
+                } else {
+                    audio.pause();
+                    playBtn.textContent = '▶';
+                }
+
+                // Обновление прогресса и времени
+                audio.ontimeupdate = function() {
+                    if (audio.duration) {
+                        const percent = (audio.currentTime / audio.duration) * 100;
+                        progressFill.style.width = percent + '%';
+                        
+                        const mins = Math.floor(audio.currentTime / 60);
+                        const secs = Math.floor(audio.currentTime % 60);
+                        timeDisplay.textContent = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                    }
+                };
+
+                // Сброс при завершении
+                audio.onended = function() {
+                    playBtn.textContent = '▶';
+                    timeDisplay.textContent = '0:00';
+                    progressFill.style.width = '0%';
+                };
             }
         });
 
@@ -404,18 +534,15 @@
             drawToggle.classList.add('active');
             drawPanel.classList.add('visible');
             document.getElementById('map').classList.add('map-drawing');
-
             updateButtons();
         }
 
         function finishDrawing() {
             isDrawing = false;
-
             drawToggle.textContent = '✏️ Нарисовать маршрут';
             drawToggle.classList.remove('active');
             drawPanel.classList.remove('visible');
             document.getElementById('map').classList.remove('map-drawing');
-
             clearCurrentRoute();
         }
 
@@ -434,9 +561,8 @@
             }).addTo(map);
             routeDots.push(dot);
 
-            if (routeLine) {
-                map.removeLayer(routeLine);
-            }
+            if (routeLine) map.removeLayer(routeLine);
+            
             if (routePoints.length >= 2) {
                 routeLine = L.polyline(routePoints, {
                     color: '#C87941',
@@ -446,13 +572,11 @@
                     lineJoin: 'round'
                 }).addTo(map);
             }
-
             updateButtons();
         });
 
         btnUndo.addEventListener('click', function() {
             if (routePoints.length === 0) return;
-
             routePoints.pop();
             const lastDot = routeDots.pop();
             if (lastDot) map.removeLayer(lastDot);
@@ -470,7 +594,6 @@
                     lineJoin: 'round'
                 }).addTo(map);
             }
-
             updateButtons();
         });
 
