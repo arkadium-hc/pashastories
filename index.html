@@ -47,7 +47,6 @@
             font-family: 'Montserrat', sans-serif;
             box-shadow: 0 4px 12px rgba(107, 84, 69, 0.15);
         }
-        /* Стрелочка подсказки */
         .leaflet-tooltip.custom-tooltip:before {
             border-top-color: rgba(255, 255, 255, 0.95);
         }
@@ -86,7 +85,6 @@
             border-color: #D4A574;
         }
         
-        /* Кнопка Play/Pause (без рамок и квадратов) */
         .play-btn {
             width: 36px;
             height: 36px;
@@ -135,7 +133,6 @@
             font-weight: 500;
         }
 
-        /* Ползунок перемотки */
         .seek-bar {
             -webkit-appearance: none;
             appearance: none;
@@ -147,7 +144,6 @@
             cursor: pointer;
             margin-top: 2px;
         }
-        /* Ползунок для Chrome/Safari/Edge */
         .seek-bar::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
@@ -163,7 +159,6 @@
         .seek-bar::-webkit-slider-thumb:hover {
             transform: scale(1.3);
         }
-        /* Ползунок для Firefox */
         .seek-bar::-moz-range-thumb {
             width: 12px;
             height: 12px;
@@ -390,6 +385,14 @@
         }).addTo(map);
 
         // === ДАННЫЕ ТОЧЕК ===
+        // 17 цветов для 17 точек
+        const colors = [
+            '#E63946', '#F4A261', '#2A9D8F', '#457B9D', '#6A4C93',
+            '#E76F51', '#06A77D', '#D62828', '#4361EE', '#8338EC', 
+            '#FF006E', '#FB5607', '#3A86FF', '#8AC926', '#FFBE0B',
+            '#FF595E', '#1982C4'
+        ];
+
         const stories = [
             { number: 1, title: "Нептун", lat: 56.302113, lng: 38.195208, audio: "./audio/ira-neptun.m4a", description: "Рассказчик: Ирина Тарабрина" },
             { number: 2, title: "Лесное озеро", lat: 56.304203, lng: 38.196720, audio: "./audio/ira-lesnoe.m4a", description: "Рассказчик: Ирина Тарабрина" },
@@ -398,18 +401,21 @@
             { number: 5, title: "ЖД полиция", lat: 56.305188, lng: 38.138321, audio: null, description: "Рассказчик: Анастасия Пичкасова" },
             { number: 6, title: "Келарка", lat: 56.303419, lng: 38.125795, audio: null, description: "Рассказчик: Иссамчик" },
             { number: 7, title: "Трикотажка", lat: 56.311902, lng: 38.137340, audio: null, description: null },
-            { number: 8, title: "Бира", lat: 56.311501, lng: 38.135550, audio: null, description: null },
+            { number: 8, title: "Бира", lat: 56.311501, lng: 38.135550, audio: "./audio/stasya.mp3", description: "Рассказчик: Анастасия Топчиева" },
             { number: 9, title: "СВОИ Фест", lat: 56.314181, lng: 38.137641, audio: null, description: null },
-            { number: 10, title: "Станция 76 км", lat: 56.344341, lng: 38.202045, audio: null, description: "Рассказчик: Владимир Столяров" },
+            { number: 10, title: "Станция 76 км", lat: 56.344341, lng: 38.202045, audio: "./audio/vovan-76.m4a", description: "Рассказчик: Владимир Столяров" },
             { number: 11, title: "Хани", lat: 56.305032, lng: 38.133989, audio: null, description: null },
             { number: 12, title: "Гастробар на Ясной", lat: 56.303918, lng: 38.183152, audio: null, description: "Рассказчик: Полина Пахомова" },
-            { number: 13, title: "Гнездо поганок", lat: 56.306013, lng: 38.127606, audio: null, description: "Рассказчик: Полина Пахомова" }
+            { number: 13, title: "Гнездо поганок", lat: 56.306013, lng: 38.127606, audio: null, description: "Рассказчик: Полина Пахомова" },
+            { number: 14, title: "Загорское море", lat: 56.300683, lng: 38.074312, audio: "./audio/vovan-zagorskoe.m4a", description: "Рассказчик: Владимир Столяров" },
+            { number: 15, title: "Трасса А108", lat: 56.371231, lng: 38.146125, audio: "./audio/vovan-a108.m4a", description: "Рассказчик: Владимир Столяров" },
+            { number: 16, title: "Станция Наугольное", lat: 56.359353, lng: 38.176723, audio: "./audio/vovan-naugolnoe.m4a", description: "Рассказчик: Владимир Столяров" },
+            { number: 17, title: "Вифанская 5", lat: 56.311081, lng: 38.140362, audio: "./audio/sveta.mp3", description: "Рассказчик: Светлана Беляева" }
         ];
 
         const markers = [];
 
         stories.forEach(story => {
-            // SVG-иконка: булавка с белой обводкой и белым значком play в центре
             const markerIcon = L.divIcon({
                 className: '',
                 html: `
@@ -423,7 +429,6 @@
 
             const marker = L.marker([story.lat, story.lng], { icon: markerIcon }).addTo(map);
             
-            // Всплывающая подсказка при наведении
             marker.bindTooltip(story.title, {
                 direction: 'top',
                 offset: [0, -14],
@@ -431,11 +436,9 @@
                 opacity: 1
             });
             
-            // Иконки для плеера (SVG)
             const playIcon = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 2L12 7L3 12V2Z" fill="white"/></svg>`;
             const pauseIcon = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 2H6V12H3V2Z" fill="white"/><path d="M8 2H11V12H8V2Z" fill="white"/></svg>`;
 
-            // Формируем содержимое попапа при клике
             let popupContent = `<div class="audio-popup"><h3>${story.title}</h3>`;
             
             if (story.audio) {
@@ -471,13 +474,11 @@
             markers.push(marker);
         });
 
-        // Автоматическое масштабирование карты по всем точкам
         const group = L.featureGroup(markers);
         map.fitBounds(group.getBounds(), { padding: [50, 50] });
 
         // === ОБРАБОТЧИКИ СОБЫТИЙ ===
         document.addEventListener('click', function(e) {
-            // 1. Обработка кнопки раскрытия описания
             const toggle = e.target.closest('.desc-toggle');
             if (toggle) {
                 e.stopPropagation();
@@ -494,7 +495,6 @@
                 return;
             }
 
-            // 2. Обработка кастомного аудиоплеера
             const playBtn = e.target.closest('.play-btn');
             if (playBtn) {
                 e.stopPropagation();
@@ -505,7 +505,6 @@
                 const seekBar = player.querySelector('.seek-bar');
 
                 if (audio.paused) {
-                    // Ставим на паузу все остальные плееры на карте
                     document.querySelectorAll('.hidden-audio').forEach(a => {
                         if (a !== audio) {
                             a.pause();
@@ -524,12 +523,10 @@
                     playBtn.innerHTML = playBtn.dataset.playIcon;
                 }
 
-                // Обновление прогресса и времени
                 audio.ontimeupdate = function() {
                     if (audio.duration) {
                         const percent = (audio.currentTime / audio.duration) * 100;
                         seekBar.value = percent;
-                        // Визуальное заполнение полосы до ползунка
                         seekBar.style.background = `linear-gradient(to right, #C87941 ${percent}%, #E6C9A8 ${percent}%)`;
                         
                         const mins = Math.floor(audio.currentTime / 60);
@@ -538,7 +535,6 @@
                     }
                 };
 
-                // Сброс при завершении
                 audio.onended = function() {
                     playBtn.innerHTML = playBtn.dataset.playIcon;
                     timeDisplay.textContent = '0:00';
@@ -547,7 +543,6 @@
                 };
             }
 
-            // 3. Обработка перемотки (ползунок)
             const seekBar = e.target.closest('.seek-bar');
             if (seekBar) {
                 e.stopPropagation();
