@@ -67,6 +67,21 @@
             font-weight: 700;
         }
 
+        /* === БЛОК ОДНОЙ ИСТОРИИ === */
+        .story-block {
+            margin-bottom: 10px;
+        }
+        .story-block:last-child {
+            margin-bottom: 0;
+        }
+        /* Разделитель между несколькими историями */
+        .story-divider {
+            height: 1px;
+            background: #E6C9A8;
+            margin: 12px 0;
+            border: none;
+        }
+
         /* === КАСТОМНЫЙ АУДИОПЛЕЕР С ПЕРЕМОТКОЙ === */
         .custom-audio-player {
             display: flex;
@@ -76,7 +91,7 @@
             border: 1px solid #E6C9A8;
             border-radius: 12px;
             padding: 10px 12px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             transition: all 0.2s;
             user-select: none;
         }
@@ -385,14 +400,7 @@
         }).addTo(map);
 
         // === ДАННЫЕ ТОЧЕК ===
-        // 17 цветов для 17 точек
-        const colors = [
-            '#E63946', '#F4A261', '#2A9D8F', '#457B9D', '#6A4C93',
-            '#E76F51', '#06A77D', '#D62828', '#4361EE', '#8338EC', 
-            '#FF006E', '#FB5607', '#3A86FF', '#8AC926', '#FFBE0B',
-            '#FF595E', '#1982C4'
-        ];
-
+        // Все записи (включая дубликаты номеров для нескольких историй)
         const stories = [
             { number: 1, title: "Нептун", lat: 56.302113, lng: 38.195208, audio: "./audio/ira-neptun.m4a", description: "Рассказчик: Ирина Тарабрина" },
             { number: 2, title: "Лесное озеро", lat: 56.304203, lng: 38.196720, audio: "./audio/ira-lesnoe.m4a", description: "Рассказчик: Ирина Тарабрина" },
@@ -405,17 +413,50 @@
             { number: 9, title: "СВОИ Фест", lat: 56.314181, lng: 38.137641, audio: null, description: null },
             { number: 10, title: "Станция 76 км", lat: 56.344341, lng: 38.202045, audio: "./audio/vovan-76.m4a", description: "Рассказчик: Владимир Столяров" },
             { number: 11, title: "Хани", lat: 56.305032, lng: 38.133989, audio: null, description: null },
-            { number: 12, title: "Гастробар на Ясной", lat: 56.303918, lng: 38.183152, audio: null, description: "Рассказчик: Полина Пахомова" },
+            { number: 12, title: "Гастробар на Ясной", lat: 56.303918, lng: 38.183152, audio: "./audio/polya-velosiped.m4a", description: "Рассказчик: Полина Пахомова" },
             { number: 13, title: "Гнездо поганок", lat: 56.306013, lng: 38.127606, audio: null, description: "Рассказчик: Полина Пахомова" },
             { number: 14, title: "Загорское море", lat: 56.300683, lng: 38.074312, audio: "./audio/vovan-zagorskoe.m4a", description: "Рассказчик: Владимир Столяров" },
             { number: 15, title: "Трасса А108", lat: 56.371231, lng: 38.146125, audio: "./audio/vovan-a108.m4a", description: "Рассказчик: Владимир Столяров" },
             { number: 16, title: "Станция Наугольное", lat: 56.359353, lng: 38.176723, audio: "./audio/vovan-naugolnoe.m4a", description: "Рассказчик: Владимир Столяров" },
-            { number: 17, title: "Вифанская 5", lat: 56.311081, lng: 38.140362, audio: "./audio/sveta.mp3", description: "Рассказчик: Светлана Беляева" }
+            { number: 17, title: "Вифанская 5", lat: 56.311081, lng: 38.140362, audio: "./audio/sveta.mp3", description: "Рассказчик: Светлана Беляева" },
+            { number: 17, title: "Вифанская 5", lat: 56.311081, lng: 38.140362, audio: "./audio/anya-petrova.mp3", description: "Рассказчик: Анна Храмова" },
+            { number: 18, title: "Леса Новой гостиницы Лавры", lat: 56.311665, lng: 38.134618, audio: null, description: "Рассказчик: Юлия Курдяева" },
+            { number: 19, title: "Сергиевская улица", lat: 56.305850, lng: 38.138165, audio: "./audio/tema-samokat.m4a", description: "Рассказчик: Артём Тихонов" },
+            { number: 20, title: "Конный двор", lat: 56.313402, lng: 38.133416, audio: "./audio/vovan-konnydvor.m4a", description: "Рассказчик: Владимир Столяров" }
+        ];
+
+        // Группируем записи по номеру точки
+        const groupedStories = {};
+        stories.forEach(story => {
+            if (!groupedStories[story.number]) {
+                groupedStories[story.number] = {
+                    number: story.number,
+                    title: story.title,
+                    lat: story.lat,
+                    lng: story.lng,
+                    entries: []
+                };
+            }
+            groupedStories[story.number].entries.push({
+                audio: story.audio,
+                description: story.description
+            });
+        });
+
+        // Цвета для 20 уникальных точек
+        const colors = [
+            '#E63946', '#F4A261', '#2A9D8F', '#457B9D', '#6A4C93',
+            '#E76F51', '#06A77D', '#D62828', '#4361EE', '#8338EC', 
+            '#FF006E', '#FB5607', '#3A86FF', '#8AC926', '#FFBE0B',
+            '#FF595E', '#1982C4', '#6A994E', '#A7C957', '#BC4749'
         ];
 
         const markers = [];
+        const playIcon = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 2L12 7L3 12V2Z" fill="white"/></svg>`;
+        const pauseIcon = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 2H6V12H3V2Z" fill="white"/><path d="M8 2H11V12H8V2Z" fill="white"/></svg>`;
 
-        stories.forEach(story => {
+        // Создаём маркеры для каждой сгруппированной точки
+        Object.values(groupedStories).forEach(group => {
             const markerIcon = L.divIcon({
                 className: '',
                 html: `
@@ -427,63 +468,79 @@
                 iconAnchor: [18, 44]
             });
 
-            const marker = L.marker([story.lat, story.lng], { icon: markerIcon }).addTo(map);
+            const marker = L.marker([group.lat, group.lng], { icon: markerIcon }).addTo(map);
             
-            marker.bindTooltip(story.title, {
+            marker.bindTooltip(group.title, {
                 direction: 'top',
                 offset: [0, -14],
                 className: 'custom-tooltip',
                 opacity: 1
             });
-            
-            const playIcon = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 2L12 7L3 12V2Z" fill="white"/></svg>`;
-            const pauseIcon = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 2H6V12H3V2Z" fill="white"/><path d="M8 2H11V12H8V2Z" fill="white"/></svg>`;
 
-            let popupContent = `<div class="audio-popup"><h3>${story.title}</h3>`;
+            // Формируем содержимое попапа
+            let popupContent = `<div class="audio-popup"><h3>${group.title}</h3>`;
             
-            if (story.audio) {
-                popupContent += `
-                <div class="custom-audio-player" data-src="${story.audio}">
-                    <button class="play-btn" data-play-icon='${playIcon}' data-pause-icon='${pauseIcon}'>
-                        ${playIcon}
-                    </button>
-                    <div class="track-info">
-                        <span class="track-name">Слушать</span>
-                        <span class="track-time">0:00</span>
-                        <input type="range" class="seek-bar" value="0" min="0" max="100" step="0.1">
-                    </div>
-                    <audio class="hidden-audio" src="${story.audio}"></audio>
-                </div>`;
-            } else {
-                popupContent += `<div class="placeholder">Аудио скоро появится 🎧</div>`;
-            }
-            
-            if (story.description) {
-                popupContent += `
-                    <button class="desc-toggle" data-story="${story.number}">
-                        <span class="arrow">▼</span> Подробнее
-                    </button>
-                    <div class="desc-content" data-story-content="${story.number}">
-                        ${story.description}
-                    </div>
-                `;
-            }
+            group.entries.forEach((entry, index) => {
+                // Уникальный ID для каждой записи (номер точки + индекс)
+                const storyId = `${group.number}-${index}`;
+                
+                // Разделитель между историями (не перед первой)
+                if (index > 0) {
+                    popupContent += `<hr class="story-divider">`;
+                }
+                
+                popupContent += `<div class="story-block">`;
+                
+                // Плеер или заглушка
+                if (entry.audio) {
+                    popupContent += `
+                    <div class="custom-audio-player" data-src="${entry.audio}">
+                        <button class="play-btn" data-play-icon='${playIcon}' data-pause-icon='${pauseIcon}'>
+                            ${playIcon}
+                        </button>
+                        <div class="track-info">
+                            <span class="track-name">Слушать</span>
+                            <span class="track-time">0:00</span>
+                            <input type="range" class="seek-bar" value="0" min="0" max="100" step="0.1">
+                        </div>
+                        <audio class="hidden-audio" src="${entry.audio}"></audio>
+                    </div>`;
+                } else {
+                    popupContent += `<div class="placeholder">Аудио скоро появится 🎧</div>`;
+                }
+                
+                // Раскрывающееся описание
+                if (entry.description) {
+                    popupContent += `
+                        <button class="desc-toggle" data-story="${storyId}">
+                            <span class="arrow">▼</span> Подробнее
+                        </button>
+                        <div class="desc-content" data-story-content="${storyId}">
+                            ${entry.description}
+                        </div>
+                    `;
+                }
+                
+                popupContent += `</div>`;
+            });
             
             popupContent += `</div>`;
             marker.bindPopup(popupContent);
             markers.push(marker);
         });
 
+        // Автоматическое масштабирование карты по всем точкам
         const group = L.featureGroup(markers);
         map.fitBounds(group.getBounds(), { padding: [50, 50] });
 
         // === ОБРАБОТЧИКИ СОБЫТИЙ ===
         document.addEventListener('click', function(e) {
+            // 1. Раскрытие описания
             const toggle = e.target.closest('.desc-toggle');
             if (toggle) {
                 e.stopPropagation();
-                const storyNum = toggle.getAttribute('data-story');
-                const content = document.querySelector(`[data-story-content="${storyNum}"]`);
+                const storyId = toggle.getAttribute('data-story');
+                const content = document.querySelector(`[data-story-content="${storyId}"]`);
                 toggle.classList.toggle('open');
                 content.classList.toggle('open');
                 
@@ -495,6 +552,7 @@
                 return;
             }
 
+            // 2. Плеер
             const playBtn = e.target.closest('.play-btn');
             if (playBtn) {
                 e.stopPropagation();
@@ -505,6 +563,7 @@
                 const seekBar = player.querySelector('.seek-bar');
 
                 if (audio.paused) {
+                    // Пауза для всех других плееров
                     document.querySelectorAll('.hidden-audio').forEach(a => {
                         if (a !== audio) {
                             a.pause();
@@ -543,6 +602,7 @@
                 };
             }
 
+            // 3. Перемотка
             const seekBar = e.target.closest('.seek-bar');
             if (seekBar) {
                 e.stopPropagation();
