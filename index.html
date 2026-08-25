@@ -23,7 +23,6 @@
             width: 100%; 
         }
 
-        /* === МАРКЕР-БУЛАВКА С PLAY И БЕЛОЙ ОБВОДКОЙ === */
         .story-marker-svg {
             filter: drop-shadow(0 3px 6px rgba(107, 84, 69, 0.3));
             transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), filter 0.25s;
@@ -34,7 +33,6 @@
             filter: drop-shadow(0 6px 12px rgba(107, 84, 69, 0.4));
         }
 
-        /* === ВСПЛЫВАЮЩАЯ ПОДСКАЗКА (Светлая, полупрозрачная) === */
         .custom-tooltip {
             background: rgba(255, 255, 255, 0.95);
             color: #6B5445;
@@ -54,7 +52,6 @@
             border-top-color: #E6C9A8;
         }
 
-        /* === ОКНО ПРИ НАЖАТИИ (ПОПАП) === */
         .audio-popup { 
             min-width: 240px; 
             max-width: 280px;
@@ -67,14 +64,12 @@
             font-weight: 700;
         }
 
-        /* === БЛОК ОДНОЙ ИСТОРИИ === */
         .story-block {
             margin-bottom: 10px;
         }
         .story-block:last-child {
             margin-bottom: 0;
         }
-        /* Разделитель между несколькими историями */
         .story-divider {
             height: 1px;
             background: #E6C9A8;
@@ -82,7 +77,6 @@
             border: none;
         }
 
-        /* === КАСТОМНЫЙ АУДИОПЛЕЕР С ПЕРЕМОТКОЙ === */
         .custom-audio-player {
             display: flex;
             align-items: center;
@@ -199,7 +193,6 @@
             font-weight: 500;
         }
 
-        /* === КНОПКА РАСКРЫТИЯ ОПИСАНИЯ === */
         .desc-toggle {
             display: inline-flex;
             align-items: center;
@@ -234,7 +227,6 @@
             color: #6B5445;
         }
 
-        /* === РАСКРЫВАЮЩЕЕСЯ ОПИСАНИЕ === */
         .desc-content {
             max-height: 0;
             overflow: hidden;
@@ -256,7 +248,6 @@
             border-left: 3px solid #C87941;
         }
 
-        /* === КНОПКА "НАРИСОВАТЬ МАРШРУТ" === */
         .draw-toggle {
             position: absolute;
             top: 20px;
@@ -282,7 +273,6 @@
             background: #8B6F47;
         }
 
-        /* === ПАНЕЛЬ РИСОВАНИЯ === */
         .draw-panel {
             position: absolute;
             top: 72px;
@@ -365,7 +355,6 @@
             font-weight: 500;
         }
 
-        /* === РЕЖИМ РИСОВАНИЯ === */
         .map-drawing {
             cursor: crosshair !important;
         }
@@ -393,36 +382,37 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         // === КАРТА ===
-        const map = L.map('map').setView([56.3125, 38.1285], 13);
+        const map = L.map('map').setView([56.3125, 38.1285], 12);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap'
         }).addTo(map);
 
         // === ДАННЫЕ ТОЧЕК ===
-        // Все записи (включая дубликаты номеров для нескольких историй)
         const stories = [
             { number: 1, title: "Нептун", lat: 56.302113, lng: 38.195208, audio: "./audio/ira-neptun.m4a", description: "Рассказчик: Ирина Тарабрина" },
             { number: 2, title: "Лесное озеро", lat: 56.304203, lng: 38.196720, audio: "./audio/ira-lesnoe.m4a", description: "Рассказчик: Ирина Тарабрина" },
             { number: 3, title: "Бассейн Дельфин", lat: 56.303451, lng: 38.178942, audio: null, description: "Рассказчик: Владислав Швец" },
             { number: 4, title: "Автовокзал", lat: 56.303853, lng: 38.136041, audio: "./audio/polotentse.m4a", description: "Рассказчик: Ирина Тарабрина" },
             { number: 5, title: "ЖД полиция", lat: 56.305188, lng: 38.138321, audio: null, description: "Рассказчик: Анастасия Пичкасова" },
-            { number: 6, title: "Келарка", lat: 56.303419, lng: 38.125795, audio: null, description: "Рассказчик: Иссамчик" },
-            { number: 7, title: "Трикотажка", lat: 56.311902, lng: 38.137340, audio: null, description: null },
-            { number: 8, title: "Бира", lat: 56.311501, lng: 38.135550, audio: "./audio/stasya.mp3", description: "Рассказчик: Анастасия Топчиева" },
-            { number: 9, title: "СВОИ Фест", lat: 56.314181, lng: 38.137641, audio: null, description: null },
-            { number: 10, title: "Станция 76 км", lat: 56.344341, lng: 38.202045, audio: "./audio/vovan-76.m4a", description: "Рассказчик: Владимир Столяров" },
-            { number: 11, title: "Хани", lat: 56.305032, lng: 38.133989, audio: null, description: null },
-            { number: 12, title: "Гастробар на Ясной", lat: 56.303918, lng: 38.183152, audio: "./audio/polya-velosiped.m4a", description: "Рассказчик: Полина Пахомова" },
-            { number: 13, title: "Гнездо поганок", lat: 56.306013, lng: 38.127606, audio: null, description: "Рассказчик: Полина Пахомова" },
-            { number: 14, title: "Загорское море", lat: 56.300683, lng: 38.074312, audio: "./audio/vovan-zagorskoe.m4a", description: "Рассказчик: Владимир Столяров" },
-            { number: 15, title: "Трасса А108", lat: 56.371231, lng: 38.146125, audio: "./audio/vovan-a108.m4a", description: "Рассказчик: Владимир Столяров" },
-            { number: 16, title: "Станция Наугольное", lat: 56.359353, lng: 38.176723, audio: "./audio/vovan-naugolnoe.m4a", description: "Рассказчик: Владимир Столяров" },
-            { number: 17, title: "Вифанская 5", lat: 56.311081, lng: 38.140362, audio: "./audio/sveta.mp3", description: "Рассказчик: Светлана Беляева" },
-            { number: 17, title: "Вифанская 5", lat: 56.311081, lng: 38.140362, audio: "./audio/anya-petrova.mp3", description: "Рассказчик: Анна Храмова" },
-            { number: 18, title: "Леса Новой гостиницы Лавры", lat: 56.311665, lng: 38.134618, audio: null, description: "Рассказчик: Юлия Курдяева" },
-            { number: 19, title: "Сергиевская улица", lat: 56.305850, lng: 38.138165, audio: "./audio/tema-samokat.m4a", description: "Рассказчик: Артём Тихонов" },
-            { number: 20, title: "Конный двор", lat: 56.313402, lng: 38.133416, audio: "./audio/vovan-konnydvor.m4a", description: "Рассказчик: Владимир Столяров" }
+            { number: 6, title: "Трикотажка", lat: 56.311902, lng: 38.137340, audio: "./audio/issamchik-masterskaya.mp3", description: "Рассказчик: Иссамчик" },
+            { number: 7, title: "Бира", lat: 56.311501, lng: 38.135550, audio: "./audio/stasya.mp3", description: "Рассказчик: Анастасия Топчиева" },
+            { number: 8, title: "Бар СВОИ", lat: 56.304801, lng: 38.133984, audio: "./audio/issamchik-svoi.mp3", description: "Рассказчик: Иссамчик" },
+            { number: 9, title: "Станция 76 км", lat: 56.344341, lng: 38.202045, audio: "./audio/vovan-76.m4a", description: "Рассказчик: Владимир Столяров" },
+            { number: 10, title: "Хани", lat: 56.305032, lng: 38.133989, audio: null, description: null },
+            { number: 11, title: "Гастробар на Ясной", lat: 56.303918, lng: 38.183152, audio: "./audio/polya-velosiped.m4a", description: "Рассказчик: Полина Пахомова" },
+            { number: 12, title: "Загорское море", lat: 56.300683, lng: 38.074312, audio: "./audio/vovan-zagorskoe.m4a", description: "Рассказчик: Владимир Столяров" },
+            { number: 13, title: "Трасса А108", lat: 56.371231, lng: 38.146125, audio: "./audio/vovan-a108.m4a", description: "Рассказчик: Владимир Столяров" },
+            { number: 14, title: "Станция Наугольное", lat: 56.359353, lng: 38.176723, audio: "./audio/vovan-naugolnoe.m4a", description: "Рассказчик: Владимир Столяров" },
+            { number: 15, title: "Вифанская 5", lat: 56.311081, lng: 38.140362, audio: "./audio/sveta.mp3", description: "Рассказчик: Светлана Беляева" },
+            { number: 15, title: "Вифанская 5", lat: 56.311081, lng: 38.140362, audio: "./audio/anya-petrova.mp3", description: "Рассказчик: Анна Храмова" },
+            { number: 15, title: "Вифанская 5", lat: 56.311081, lng: 38.140362, audio: "./audio/issamchik-dom.mp3", description: "Рассказчик: Иссамчик" },
+            { number: 16, title: "Леса Новой гостиницы Лавры", lat: 56.311665, lng: 38.134618, audio: null, description: "Рассказчик: Юлия Курдяева" },
+            { number: 17, title: "Сергиевская улица", lat: 56.305850, lng: 38.138165, audio: "./audio/tema-samokat.m4a", description: "Рассказчик: Артём Тихонов" },
+            { number: 18, title: "Конный двор", lat: 56.313402, lng: 38.133416, audio: "./audio/vovan-konnydvor.m4a", description: "Рассказчик: Владимир Столяров" },
+            { number: 19, title: "Вифанская 12", lat: 56.309953, lng: 38.141524, audio: "./audio/issamchik-dr.mp3", description: "Рассказчик: Иссамчик" },
+            { number: 20, title: "Переславль", lat: 56.735238, lng: 38.828474, audio: "./audio/issamchik-pereslavl.mp3", description: "Рассказчик: Иссамчик" },
+            { number: 21, title: "Пруд у Троицкой слободы", lat: 56.316422, lng: 38.109383, audio: "./audio/issamchik-piknik.mp3", description: "Рассказчик: Иссамчик" }
         ];
 
         // Группируем записи по номеру точки
@@ -443,19 +433,19 @@
             });
         });
 
-        // Цвета для 20 уникальных точек
+        // Цвета для 21 уникальной точки
         const colors = [
             '#E63946', '#F4A261', '#2A9D8F', '#457B9D', '#6A4C93',
             '#E76F51', '#06A77D', '#D62828', '#4361EE', '#8338EC', 
             '#FF006E', '#FB5607', '#3A86FF', '#8AC926', '#FFBE0B',
-            '#FF595E', '#1982C4', '#6A994E', '#A7C957', '#BC4749'
+            '#FF595E', '#1982C4', '#6A994E', '#A7C957', '#BC4749',
+            '#CA6702'
         ];
 
         const markers = [];
         const playIcon = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 2L12 7L3 12V2Z" fill="white"/></svg>`;
         const pauseIcon = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 2H6V12H3V2Z" fill="white"/><path d="M8 2H11V12H8V2Z" fill="white"/></svg>`;
 
-        // Создаём маркеры для каждой сгруппированной точки
         Object.values(groupedStories).forEach(group => {
             const markerIcon = L.divIcon({
                 className: '',
@@ -477,21 +467,17 @@
                 opacity: 1
             });
 
-            // Формируем содержимое попапа
             let popupContent = `<div class="audio-popup"><h3>${group.title}</h3>`;
             
             group.entries.forEach((entry, index) => {
-                // Уникальный ID для каждой записи (номер точки + индекс)
                 const storyId = `${group.number}-${index}`;
                 
-                // Разделитель между историями (не перед первой)
                 if (index > 0) {
                     popupContent += `<hr class="story-divider">`;
                 }
                 
                 popupContent += `<div class="story-block">`;
                 
-                // Плеер или заглушка
                 if (entry.audio) {
                     popupContent += `
                     <div class="custom-audio-player" data-src="${entry.audio}">
@@ -509,7 +495,6 @@
                     popupContent += `<div class="placeholder">Аудио скоро появится 🎧</div>`;
                 }
                 
-                // Раскрывающееся описание
                 if (entry.description) {
                     popupContent += `
                         <button class="desc-toggle" data-story="${storyId}">
@@ -529,13 +514,11 @@
             markers.push(marker);
         });
 
-        // Автоматическое масштабирование карты по всем точкам
         const group = L.featureGroup(markers);
         map.fitBounds(group.getBounds(), { padding: [50, 50] });
 
         // === ОБРАБОТЧИКИ СОБЫТИЙ ===
         document.addEventListener('click', function(e) {
-            // 1. Раскрытие описания
             const toggle = e.target.closest('.desc-toggle');
             if (toggle) {
                 e.stopPropagation();
@@ -552,7 +535,6 @@
                 return;
             }
 
-            // 2. Плеер
             const playBtn = e.target.closest('.play-btn');
             if (playBtn) {
                 e.stopPropagation();
@@ -563,7 +545,6 @@
                 const seekBar = player.querySelector('.seek-bar');
 
                 if (audio.paused) {
-                    // Пауза для всех других плееров
                     document.querySelectorAll('.hidden-audio').forEach(a => {
                         if (a !== audio) {
                             a.pause();
@@ -602,7 +583,6 @@
                 };
             }
 
-            // 3. Перемотка
             const seekBar = e.target.closest('.seek-bar');
             if (seekBar) {
                 e.stopPropagation();
