@@ -380,22 +380,61 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
+        // === ВОССТАНОВЛЕНИЕ ПОЗИЦИИ КАРТЫ ===
+        // Дефолтные значения — центр Сергиева Посада
+        const DEFAULT_CENTER = [56.3125, 38.1285];
+        const DEFAULT_ZOOM = 13;
+        const STORAGE_KEY = 'pashinFriendsMapView';
+
+        let initialCenter = DEFAULT_CENTER;
+        let initialZoom = DEFAULT_ZOOM;
+
+        // Пытаемся прочитать сохранённую позицию
+        try {
+            const savedView = localStorage.getItem(STORAGE_KEY);
+            if (savedView) {
+                const view = JSON.parse(savedView);
+                if (view.lat && view.lng && view.zoom) {
+                    initialCenter = [view.lat, view.lng];
+                    initialZoom = view.zoom;
+                }
+            }
+        } catch (e) {
+            // Если localStorage недоступен — используем дефолтные значения
+        }
+
         // === КАРТА ===
-        const map = L.map('map').setView([56.3125, 38.1285], 12);
+        const map = L.map('map').setView(initialCenter, initialZoom);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap'
         }).addTo(map);
 
+        // Сохраняем позицию при каждом перемещении или зуме
+        map.on('moveend zoomend', function() {
+            try {
+                const center = map.getCenter();
+                const zoom = map.getZoom();
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                    lat: center.lat,
+                    lng: center.lng,
+                    zoom: zoom
+                }));
+            } catch (e) {
+                // Игнорируем ошибки сохранения
+            }
+        });
+
         // === ДАННЫЕ ТОЧЕК ===
         const stories = [
             { number: 1, title: "Нептун", lat: 56.302113, lng: 38.195208, audio: "./audio/ira-neptun.m4a", description: "Рассказчик: Ирина Тарабрина" },
             { number: 2, title: "Лесное озеро", lat: 56.304203, lng: 38.196720, audio: "./audio/ira-lesnoe.m4a", description: "Рассказчик: Ирина Тарабрина" },
-            { number: 3, title: "Бассейн Дельфин", lat: 56.303451, lng: 38.178942, audio: null, description: "Рассказчик: Владислав Швец" },
+            { number: 3, title: "Бассейн Дельфин", lat: 56.303355, lng: 38.179561, audio: "./audio/vlad-mosaika.mp3", description: "Рассказчик: Владислав Швец" },
             { number: 4, title: "Автовокзал", lat: 56.303853, lng: 38.136041, audio: "./audio/polotentse.m4a", description: "Рассказчик: Ирина Тарабрина" },
             { number: 5, title: "ЖД полиция", lat: 56.305188, lng: 38.138321, audio: null, description: "Рассказчик: Анастасия Пичкасова" },
             { number: 6, title: "Трикотажка", lat: 56.311902, lng: 38.137340, audio: "./audio/issamchik-masterskaya.mp3", description: "Рассказчик: Иссамчик" },
             { number: 6, title: "Трикотажка", lat: 56.311902, lng: 38.137340, audio: "./audio/sasha.mp3", description: "Рассказчик: Александра Серова" },
+            { number: 6, title: "Трикотажка", lat: 56.311902, lng: 38.137340, audio: "./audio/vlad-masterskaya.mp3", description: "Рассказчик: Владислав Швец" },
             { number: 7, title: "Бира", lat: 56.311501, lng: 38.135550, audio: "./audio/stasya.mp3", description: "Рассказчик: Анастасия Топчиева" },
             { number: 8, title: "Бар СВОИ", lat: 56.304801, lng: 38.133984, audio: "./audio/issamchik-svoi.mp3", description: "Рассказчик: Иссамчик" },
             { number: 9, title: "Станция 76 км", lat: 56.344341, lng: 38.202045, audio: "./audio/vovan-76.m4a", description: "Рассказчик: Владимир Столяров" },
@@ -413,7 +452,15 @@
             { number: 19, title: "Вифанская 12", lat: 56.309953, lng: 38.141524, audio: "./audio/issamchik-dr.mp3", description: "Рассказчик: Иссамчик" },
             { number: 19, title: "Вифанская 12", lat: 56.309953, lng: 38.141524, audio: "./audio/genia.m4a", description: "Рассказчик: Женя" },
             { number: 20, title: "Переславль", lat: 56.735238, lng: 38.828474, audio: "./audio/issamchik-pereslavl.mp3", description: "Рассказчик: Иссамчик" },
-            { number: 21, title: "Пруд у Троицкой слободы", lat: 56.316422, lng: 38.109383, audio: "./audio/issamchik-piknik.mp3", description: "Рассказчик: Иссамчик" }
+            { number: 21, title: "Пруд у Троицкой слободы", lat: 56.316422, lng: 38.109383, audio: "./audio/issamchik-piknik.mp3", description: "Рассказчик: Иссамчик" },
+            { number: 22, title: "Дубы. Абрамцево", lat: 56.234250, lng: 37.982198, audio: "./audio/vlad-abramtsevo.mp3", description: "Рассказчик: Владислав Швец" },
+            { number: 23, title: "Пруд Коровка", lat: 56.314814, lng: 38.173061, audio: "./audio/vlad-korovka.mp3", description: "Рассказчик: Владислав Швец" },
+            { number: 24, title: "Кошечка", lat: 56.310735, lng: 38.140455, audio: "./audio/vlad-koshka.mp3", description: "Рассказчик: Владислав Швец" },
+            { number: 25, title: "Ночь. Лыжи. Суп", lat: 56.367596, lng: 38.149339, audio: "./audio/vlad-sup.mp3", description: "Рассказчик: Владислав Швец" },
+            { number: 26, title: "Нушполы", lat: 56.552391, lng: 38.030413, audio: "./audio/vlad-nush.mp3", description: "Рассказчик: Владислав Швец" },
+            { number: 27, title: "Ты как Иисус", lat: 56.495183, lng: 38.181987, audio: "./audio/vlad-iisus.mp3", description: "Рассказчик: Владислав Швец" },
+            { number: 28, title: "Фантазер", lat: 57.626559, lng: 39.893813, audio: "./audio/vlad-yar.mp3", description: "Рассказчик: Владислав Швец" },
+            { number: 29, title: "Елка", lat: 56.30228, lng: 38.16801, audio: "./audio/vlad-elka.mp3", description: "Рассказчик: Владислав Швец" }
         ];
 
         // Группируем записи по номеру точки
@@ -505,9 +552,6 @@
             marker.bindPopup(popupContent);
             markers.push(marker);
         });
-
-        const group = L.featureGroup(markers);
-        map.fitBounds(group.getBounds(), { padding: [50, 50] });
 
         // === ОБРАБОТЧИКИ СОБЫТИЙ ===
         document.addEventListener('click', function(e) {
