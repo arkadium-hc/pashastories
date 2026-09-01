@@ -152,6 +152,7 @@
             cursor: pointer;
             margin-top: 2px;
         }
+        /* Стилизация ползунка для Chrome/Safari/Edge */
         .seek-bar::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
@@ -167,6 +168,7 @@
         .seek-bar::-webkit-slider-thumb:hover {
             transform: scale(1.3);
         }
+        /* Стилизация ползунка для Firefox */
         .seek-bar::-moz-range-thumb {
             width: 12px;
             height: 12px;
@@ -381,7 +383,6 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         // === ВОССТАНОВЛЕНИЕ ПОЗИЦИИ КАРТЫ ===
-        // Дефолтные значения — центр Сергиева Посада
         const DEFAULT_CENTER = [56.3125, 38.1285];
         const DEFAULT_ZOOM = 13;
         const STORAGE_KEY = 'pashinFriendsMapView';
@@ -389,7 +390,6 @@
         let initialCenter = DEFAULT_CENTER;
         let initialZoom = DEFAULT_ZOOM;
 
-        // Пытаемся прочитать сохранённую позицию
         try {
             const savedView = localStorage.getItem(STORAGE_KEY);
             if (savedView) {
@@ -399,9 +399,7 @@
                     initialZoom = view.zoom;
                 }
             }
-        } catch (e) {
-            // Если localStorage недоступен — используем дефолтные значения
-        }
+        } catch (e) {}
 
         // === КАРТА ===
         const map = L.map('map').setView(initialCenter, initialZoom);
@@ -410,7 +408,7 @@
             attribution: '© OpenStreetMap'
         }).addTo(map);
 
-        // Сохраняем позицию при каждом перемещении или зуме
+        // Сохраняем позицию при перемещении
         map.on('moveend zoomend', function() {
             try {
                 const center = map.getCenter();
@@ -420,9 +418,7 @@
                     lng: center.lng,
                     zoom: zoom
                 }));
-            } catch (e) {
-                // Игнорируем ошибки сохранения
-            }
+            } catch (e) {}
         });
 
         // === ДАННЫЕ ТОЧЕК ===
@@ -431,7 +427,7 @@
             { number: 2, title: "Лесное озеро", lat: 56.304203, lng: 38.196720, audio: "./audio/ira-lesnoe.m4a", description: "Рассказчик: Ирина Тарабрина" },
             { number: 3, title: "Бассейн Дельфин", lat: 56.303355, lng: 38.179561, audio: "./audio/vlad-mosaika.mp3", description: "Рассказчик: Владислав Швец" },
             { number: 4, title: "Автовокзал", lat: 56.303853, lng: 38.136041, audio: "./audio/polotentse.m4a", description: "Рассказчик: Ирина Тарабрина" },
-            { number: 5, title: "ЖД полиция", lat: 56.305188, lng: 38.138321, audio: null, description: "Рассказчик: Анастасия Пичкасова" },
+            { number: 5, title: "Линейный отдел полиции", lat: 56.305188, lng: 38.138321, audio: "./audio/chkas.m4a", description: "Рассказчик: Анастасия Пичкасова" },
             { number: 6, title: "Трикотажка", lat: 56.311902, lng: 38.137340, audio: "./audio/issamchik-masterskaya.mp3", description: "Рассказчик: Иссамчик" },
             { number: 6, title: "Трикотажка", lat: 56.311902, lng: 38.137340, audio: "./audio/sasha.mp3", description: "Рассказчик: Александра Серова" },
             { number: 6, title: "Трикотажка", lat: 56.311902, lng: 38.137340, audio: "./audio/vlad-masterskaya.mp3", description: "Рассказчик: Владислав Швец" },
@@ -460,7 +456,12 @@
             { number: 26, title: "Нушполы", lat: 56.552391, lng: 38.030413, audio: "./audio/vlad-nush.mp3", description: "Рассказчик: Владислав Швец" },
             { number: 27, title: "Ты как Иисус", lat: 56.495183, lng: 38.181987, audio: "./audio/vlad-iisus.mp3", description: "Рассказчик: Владислав Швец" },
             { number: 28, title: "Фантазер", lat: 57.626559, lng: 39.893813, audio: "./audio/vlad-yar.mp3", description: "Рассказчик: Владислав Швец" },
-            { number: 29, title: "Елка", lat: 56.30228, lng: 38.16801, audio: "./audio/vlad-elka.mp3", description: "Рассказчик: Владислав Швец" }
+            { number: 29, title: "Елка", lat: 56.30228, lng: 38.16801, audio: "./audio/vlad-elka.mp3", description: "Рассказчик: Владислав Швец" },
+            { number: 30, title: "Наугольное 62", lat: 56.357225, lng: 38.181562, audio: "./audio/zhenich.m4a", description: "Рассказчик: Евгения Рубекина" },
+            { number: 31, title: "Рабочий поселок", lat: 56.311825, lng: 38.140984, audio: "./audio/anya-short.m4a", description: "Рассказчик: Анна Рубекина" },
+            { number: 32, title: "Дикси на Рабочке (полная версия)", lat: 56.311878, lng: 38.147932, audio: "./audio/anya-long.m4a", description: "Рассказчик: Анна Рубекина" },
+            { number: 33, title: "Музей-заповедник", lat: 56.312804, lng: 38.135370, audio: "./audio/dara.mp3", description: "Рассказчик: Дарья Рязанова" },
+            { number: 34, title: "НИИ ритуальных поглощений", lat: 56.321198, lng: 38.224350, audio: "./audio/nikita.mp3", description: "Рассказчик: Никита Старшинов" }
         ];
 
         // Группируем записи по номеру точки
@@ -555,6 +556,7 @@
 
         // === ОБРАБОТЧИКИ СОБЫТИЙ ===
         document.addEventListener('click', function(e) {
+            // 1. Раскрытие описания
             const toggle = e.target.closest('.desc-toggle');
             if (toggle) {
                 e.stopPropagation();
@@ -571,6 +573,7 @@
                 return;
             }
 
+            // 2. Плеер (Play/Pause)
             const playBtn = e.target.closest('.play-btn');
             if (playBtn) {
                 e.stopPropagation();
@@ -581,6 +584,7 @@
                 const seekBar = player.querySelector('.seek-bar');
 
                 if (audio.paused) {
+                    // Пауза для всех других плееров
                     document.querySelectorAll('.hidden-audio').forEach(a => {
                         if (a !== audio) {
                             a.pause();
@@ -599,8 +603,9 @@
                     playBtn.innerHTML = playBtn.dataset.playIcon;
                 }
 
+                // Обновление времени и прогресса
                 audio.ontimeupdate = function() {
-                    if (audio.duration) {
+                    if (audio.duration && !audio.seeking) { // Добавлена проверка seeking
                         const percent = (audio.currentTime / audio.duration) * 100;
                         seekBar.value = percent;
                         seekBar.style.background = `linear-gradient(to right, #C87941 ${percent}%, #E6C9A8 ${percent}%)`;
@@ -619,16 +624,28 @@
                 };
             }
 
+            // 3. Перемотка (Исправленная логика)
             const seekBar = e.target.closest('.seek-bar');
             if (seekBar) {
                 e.stopPropagation();
                 const player = seekBar.closest('.custom-audio-player');
                 const audio = player.querySelector('.hidden-audio');
                 
-                if (audio.duration) {
-                    const seekTime = (seekBar.value / 100) * audio.duration;
-                    audio.currentTime = seekTime;
-                }
+                // Используем 'change' вместо 'input' для более стабильной работы
+                // Событие срабатывает, когда пользователь отпускает ползунок
+                seekBar.onchange = function() {
+                    if (audio.duration) {
+                        const seekTime = (seekBar.value / 100) * audio.duration;
+                        audio.currentTime = seekTime;
+                        // Принудительно обновляем визуальную часть сразу
+                        seekBar.style.background = `linear-gradient(to right, #C87941 ${seekBar.value}%, #E6C9A8 ${seekBar.value}%)`;
+                    }
+                };
+                
+                // Для плавного отображения полосы во время перетаскивания (опционально)
+                seekBar.oninput = function() {
+                     seekBar.style.background = `linear-gradient(to right, #C87941 ${seekBar.value}%, #E6C9A8 ${seekBar.value}%)`;
+                };
             }
         });
 
