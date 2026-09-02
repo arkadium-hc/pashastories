@@ -152,7 +152,6 @@
             cursor: pointer;
             margin-top: 2px;
         }
-        /* Стилизация ползунка для Chrome/Safari/Edge */
         .seek-bar::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
@@ -168,7 +167,6 @@
         .seek-bar::-webkit-slider-thumb:hover {
             transform: scale(1.3);
         }
-        /* Стилизация ползунка для Firefox */
         .seek-bar::-moz-range-thumb {
             width: 12px;
             height: 12px;
@@ -408,7 +406,6 @@
             attribution: '© OpenStreetMap'
         }).addTo(map);
 
-        // Сохраняем позицию при перемещении
         map.on('moveend zoomend', function() {
             try {
                 const center = map.getCenter();
@@ -453,15 +450,24 @@
             { number: 23, title: "Пруд Коровка", lat: 56.314814, lng: 38.173061, audio: "./audio/vlad-korovka.mp3", description: "Рассказчик: Владислав Швец" },
             { number: 24, title: "Кошечка", lat: 56.310735, lng: 38.140455, audio: "./audio/vlad-koshka.mp3", description: "Рассказчик: Владислав Швец" },
             { number: 25, title: "Ночь. Лыжи. Суп", lat: 56.367596, lng: 38.149339, audio: "./audio/vlad-sup.mp3", description: "Рассказчик: Владислав Швец" },
-            { number: 26, title: "Нушполы", lat: 56.552391, lng: 38.030413, audio: "./audio/vlad-nush.mp3", description: "Рассказчик: Владислав Швец" },
+            { number: 26, title: "Константиново", lat: 56.552391, lng: 38.030413, audio: "./audio/vlad-nush.mp3", description: "Рассказчик: Владислав Швец" },
             { number: 27, title: "Ты как Иисус", lat: 56.495183, lng: 38.181987, audio: "./audio/vlad-iisus.mp3", description: "Рассказчик: Владислав Швец" },
             { number: 28, title: "Фантазер", lat: 57.626559, lng: 39.893813, audio: "./audio/vlad-yar.mp3", description: "Рассказчик: Владислав Швец" },
             { number: 29, title: "Елка", lat: 56.30228, lng: 38.16801, audio: "./audio/vlad-elka.mp3", description: "Рассказчик: Владислав Швец" },
             { number: 30, title: "Наугольное 62", lat: 56.357225, lng: 38.181562, audio: "./audio/zhenich.m4a", description: "Рассказчик: Евгения Рубекина" },
+            { number: 30, title: "Наугольное 62", lat: 56.357225, lng: 38.181562, audio: "./audio/kot4.mp3", description: "Рассказчик: Катерина Малкова" },
             { number: 31, title: "Рабочий поселок", lat: 56.311825, lng: 38.140984, audio: "./audio/anya-short.m4a", description: "Рассказчик: Анна Рубекина" },
             { number: 32, title: "Дикси на Рабочке (полная версия)", lat: 56.311878, lng: 38.147932, audio: "./audio/anya-long.m4a", description: "Рассказчик: Анна Рубекина" },
             { number: 33, title: "Музей-заповедник", lat: 56.312804, lng: 38.135370, audio: "./audio/dara.mp3", description: "Рассказчик: Дарья Рязанова" },
-            { number: 34, title: "НИИ ритуальных поглощений", lat: 56.321198, lng: 38.224350, audio: "./audio/nikita.mp3", description: "Рассказчик: Никита Старшинов" }
+            { number: 34, title: "НИИ ритуальных поглощений", lat: 56.321198, lng: 38.224350, audio: "./audio/nikita.mp3", description: "Рассказчик: Никита Старшинов" },
+            { number: 35, title: "Хотьково", lat: 56.256629, lng: 37.996141, audio: "./audio/lena.m4a", description: "Рассказчик: Елена Соколова" },
+            { number: 36, title: "Келарка", lat: 56.303324, lng: 38.125032, audio: "./audio/kot1.mp3", description: "Рассказчик: Катерина Малкова" },
+            { number: 37, title: "Горка на Келарке", lat: 56.305372, lng: 38.128319, audio: "./audio/kot2.mp3", description: "Рассказчик: Катерина Малкова" },
+            { number: 38, title: "Дуб у Дороги к храму", lat: 56.315046, lng: 38.132606, audio: "./audio/kot3.mp3", description: "Рассказчик: Катерина Малкова" },
+            { number: 39, title: "Станция Смоленское", lat: 56.637617, lng: 39.165808, audio: "./audio/kot5.mp3", description: "Рассказчик: Катерина Малкова" },
+            { number: 40, title: "Деревня Гагино", lat: 56.349245, lng: 38.366094, audio: "./audio/kot6.mp3", description: "Рассказчик: Катерина Малкова" },
+            { number: 41, title: "Тарзанка на Лесном озере", lat: 56.301697, lng: 38.199699, audio: "./audio/kot7.mp3", description: "Рассказчик: Катерина Малкова" },
+            { number: 42, title: "Заброшка в Ярославле", lat: 57.613280, lng: 39.882126, audio: "./audio/kot8.mp3", description: "Рассказчик: Катерина Малкова" }
         ];
 
         // Группируем записи по номеру точки
@@ -556,7 +562,6 @@
 
         // === ОБРАБОТЧИКИ СОБЫТИЙ ===
         document.addEventListener('click', function(e) {
-            // 1. Раскрытие описания
             const toggle = e.target.closest('.desc-toggle');
             if (toggle) {
                 e.stopPropagation();
@@ -573,7 +578,6 @@
                 return;
             }
 
-            // 2. Плеер (Play/Pause)
             const playBtn = e.target.closest('.play-btn');
             if (playBtn) {
                 e.stopPropagation();
@@ -584,7 +588,6 @@
                 const seekBar = player.querySelector('.seek-bar');
 
                 if (audio.paused) {
-                    // Пауза для всех других плееров
                     document.querySelectorAll('.hidden-audio').forEach(a => {
                         if (a !== audio) {
                             a.pause();
@@ -603,9 +606,8 @@
                     playBtn.innerHTML = playBtn.dataset.playIcon;
                 }
 
-                // Обновление времени и прогресса
                 audio.ontimeupdate = function() {
-                    if (audio.duration && !audio.seeking) { // Добавлена проверка seeking
+                    if (audio.duration && !audio.seeking) {
                         const percent = (audio.currentTime / audio.duration) * 100;
                         seekBar.value = percent;
                         seekBar.style.background = `linear-gradient(to right, #C87941 ${percent}%, #E6C9A8 ${percent}%)`;
@@ -624,25 +626,20 @@
                 };
             }
 
-            // 3. Перемотка (Исправленная логика)
             const seekBar = e.target.closest('.seek-bar');
             if (seekBar) {
                 e.stopPropagation();
                 const player = seekBar.closest('.custom-audio-player');
                 const audio = player.querySelector('.hidden-audio');
                 
-                // Используем 'change' вместо 'input' для более стабильной работы
-                // Событие срабатывает, когда пользователь отпускает ползунок
                 seekBar.onchange = function() {
                     if (audio.duration) {
                         const seekTime = (seekBar.value / 100) * audio.duration;
                         audio.currentTime = seekTime;
-                        // Принудительно обновляем визуальную часть сразу
                         seekBar.style.background = `linear-gradient(to right, #C87941 ${seekBar.value}%, #E6C9A8 ${seekBar.value}%)`;
                     }
                 };
                 
-                // Для плавного отображения полосы во время перетаскивания (опционально)
                 seekBar.oninput = function() {
                      seekBar.style.background = `linear-gradient(to right, #C87941 ${seekBar.value}%, #E6C9A8 ${seekBar.value}%)`;
                 };
